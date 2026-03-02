@@ -154,6 +154,32 @@ export default function ReportsPage({ theme, user }) {
         </div>
       )}
 
+      <div
+        style={{
+          marginBottom: 12,
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+        }}
+      >
+        {REPORTS.map((report) =>
+          report.status === 'Blocked' ? (
+            <div key={`marker-${report.id}`} style={{ color: badgeColor('Blocked') }}>
+              {report.title} needs attention.
+            </div>
+          ) : report.status === 'Draft' ? (
+            <div key={`marker-${report.id}`} style={{ color: badgeColor('Draft') }}>
+              {report.title} still drafting.
+            </div>
+          ) : (
+            <div key={`marker-${report.id}`} style={{ color: badgeColor('Ready') }}>
+              {report.title} ready to share.
+            </div>
+          ),
+        )}
+      </div>
+
       <div style={{ display: 'grid', gap: 8 }}>
         {filtered.map((report) => (
           <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
