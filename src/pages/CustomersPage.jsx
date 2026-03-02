@@ -68,7 +68,7 @@ export default function CustomersPage({ theme, user }) {
       {showSummary && (
         <div
           style={{
-            border: 1px solid ,
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
             borderRadius: 10,
             padding: 12,
             background: isLight ? '#ffffff' : '#2b3541',
@@ -83,7 +83,7 @@ export default function CustomersPage({ theme, user }) {
       )}
 
       {showRegionStats && (
-        <div style={{ border: 1px solid , borderRadius: 10, padding: 12, background: isLight ? '#ffffff' : '#2b3541', marginBottom: 12 }}>
+        <div style={{ border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`, borderRadius: 10, padding: 12, background: isLight ? '#ffffff' : '#2b3541', marginBottom: 12 }}>
           West: {results.filter((c) => c.region === 'West').length} | South: {results.filter((c) => c.region === 'South').length} | Midwest: {results.filter((c) => c.region === 'Midwest').length}
         </div>
       )}
@@ -105,13 +105,7 @@ export default function CustomersPage({ theme, user }) {
           >
             Clear
           </button>
-        <button onClick={() => setShowSummary((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {showSummary ? 'Hide Summary' : 'Show Summary'}
-        </button>
-        <button onClick={() => setShowRegionStats((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {showRegionStats ? 'Hide Region Stats' : 'Show Region Stats'}
-        </button>
-      </div>
+        </div>
       )}
 
       <CustomerList
