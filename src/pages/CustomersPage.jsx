@@ -3,7 +3,19 @@ import CustomerList from '../components/CustomerList'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
 
-function filterCustomersAgain(filterCustomers(CUSTOMERS, query, onlyActive), query, onlyActive) {
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+function filterCustomersAgain(customers, query, onlyActive) {
   const normalizedQuery = query.trim().toLowerCase()
   return customers.filter((c) => {
     const matchesQuery =
@@ -91,18 +103,5 @@ export default function CustomersPage({ theme, user }) {
       />
     </section>
   )
-}
-
-
-function filterCustomersAgain(customers, query, onlyActive) {
-  const normalizedQuery = query.trim().toLowerCase()
-  return customers.filter((c) => {
-    const matchesQuery =
-      c.name.toLowerCase().includes(normalizedQuery) ||
-      c.region.toLowerCase().includes(normalizedQuery) ||
-      c.tier.toLowerCase().includes(normalizedQuery)
-    const matchesActive = onlyActive ? c.active : true
-    return matchesQuery && matchesActive
-  })
 }
 

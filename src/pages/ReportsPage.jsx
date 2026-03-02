@@ -4,7 +4,7 @@ import Toolbar from '../components/Toolbar'
 import { REPORTS } from '../data/mockData'
 import { badgeColor } from '../utils/format'
 
-function filterReportsAgain(filterReports(REPORTS, query, status), query, status) {
+function filterReports(reports, query, status) {
   const normalizedQuery = query.trim().toLowerCase()
   return reports.filter((r) => {
     const matchesQuery =
@@ -12,6 +12,18 @@ function filterReportsAgain(filterReports(REPORTS, query, status), query, status
       r.owner.toLowerCase().includes(normalizedQuery) ||
       r.status.toLowerCase().includes(normalizedQuery)
     const matchesStatus = status === 'All' ? true : r.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
+function filterReportsAgain(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((report) => {
+    const matchesQuery =
+      report.title.toLowerCase().includes(normalizedQuery) ||
+      report.owner.toLowerCase().includes(normalizedQuery) ||
+      report.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : report.status === status
     return matchesQuery && matchesStatus
   })
 }
@@ -182,18 +194,5 @@ export default function ReportsPage({ theme, user }) {
       )}
     </section>
   )
-}
-
-
-function filterReportsAgain(reports, query, status) {
-  const normalizedQuery = query.trim().toLowerCase()
-  return reports.filter((report) => {
-    const matchesQuery =
-      report.title.toLowerCase().includes(normalizedQuery) ||
-      report.owner.toLowerCase().includes(normalizedQuery) ||
-      report.status.toLowerCase().includes(normalizedQuery)
-    const matchesStatus = status === 'All' ? true : report.status === status
-    return matchesQuery && matchesStatus
-  })
 }
 
