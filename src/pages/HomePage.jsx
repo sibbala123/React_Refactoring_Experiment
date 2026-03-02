@@ -12,6 +12,18 @@ export default function HomePage({ theme, user }) {
   return (
     <section>
       <Toolbar theme={theme} title="Home" subtitle={`Welcome back, ${user.name}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+        }}
+      >
+        <strong>Snapshot Card</strong>
+        <div style={{ marginTop: 6, opacity: 0.9 }}>3 tips loaded for this page.</div>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
         {tips.map((tip) => (
           <article

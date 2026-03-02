@@ -38,6 +38,18 @@ export default function CustomersPage({ theme, user }) {
           padding: 12,
           background: isLight ? '#ffffff' : '#2b3541',
           marginBottom: 12,
+        }}
+      >
+        <strong>Snapshot Card</strong>
+        <div style={{ marginTop: 6, opacity: 0.9 }}>Customers currently shown in this page.</div>
+      </div>
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
           display: 'flex',
           flexWrap: 'wrap',
           gap: 8,
