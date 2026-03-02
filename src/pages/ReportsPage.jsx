@@ -25,8 +25,11 @@ export default function ReportsPage({ theme, user }) {
   const [counter, setCounter] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
   const [pinReady, setPinReady] = useState(false)
+  const [showAudit, setShowAudit] = useState(false)
+  const [draftFocus, setDraftFocus] = useState(false)
+  const [localNote, setLocalNote] = useState('')
 
-  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const filtered = useMemo(() => filterReports(REPORTS, query, draftFocus ? 'Draft' : status), [query, status, draftFocus])
   const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
   const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
   const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
@@ -88,6 +91,14 @@ export default function ReportsPage({ theme, user }) {
         <button onClick={() => setPinReady((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
           {pinReady ? 'Unpin Ready' : 'Pin Ready'}
         </button>
+
+        <button onClick={() => setShowAudit((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showAudit ? 'Hide Audit' : 'Show Audit'}
+        </button>
+
+        <button onClick={() => setDraftFocus((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {draftFocus ? 'All Statuses' : 'Draft Focus'}
+        </button>
       </div>
 
       {toast && (
@@ -101,6 +112,28 @@ export default function ReportsPage({ theme, user }) {
           }}
         >
           {toast}
+        </div>
+      )}
+
+      {showAudit && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: 1px solid ,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <strong>Audit Panel:</strong> Ready reports {REPORTS.filter((r) => r.status === 'Ready').length}, drafts {REPORTS.filter((r) => r.status === 'Draft').length}.
+          <div style={{ marginTop: 8 }}>
+            <input
+              value={localNote}
+              onChange={(e) => setLocalNote(e.target.value)}
+              placeholder='Local note...'
+              style={{ padding: 8, minWidth: 220, borderRadius: 8, border: '1px solid #99a6b3' }}
+            />
+          </div>
         </div>
       )}
 
@@ -183,3 +216,4 @@ export default function ReportsPage({ theme, user }) {
     </section>
   )
 }
+
