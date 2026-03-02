@@ -21,8 +21,13 @@ export default function CustomersPage({ theme, user }) {
   const [onlyActive, setOnlyActive] = useState(false)
   const [selected, setSelected] = useState(null)
   const [toggled, setToggled] = useState({})
+  const [showSummary, setShowSummary] = useState(true)
+  const [showRegionStats, setShowRegionStats] = useState(false)
+  const [note, setNote] = useState('')
 
   const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+  const activeCount = results.filter((c) => c.active).length
+  const goldCount = results.filter((c) => c.tier === 'Gold').length
 
   const handleToggleFlag = (customerId) => {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
@@ -52,7 +57,36 @@ export default function CustomersPage({ theme, user }) {
         <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
           Showing: {onlyActive ? 'Active' : 'All'}
         </button>
+        <button onClick={() => setShowSummary((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showSummary ? 'Hide Summary' : 'Show Summary'}
+        </button>
+        <button onClick={() => setShowRegionStats((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showRegionStats ? 'Hide Region Stats' : 'Show Region Stats'}
+        </button>
       </div>
+
+      {showSummary && (
+        <div
+          style={{
+            border: 1px solid ,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Inline Summary:</strong> Active {activeCount}, Gold {goldCount}, Results {results.length}
+          <div style={{ marginTop: 8 }}>
+            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder='Team note...' style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }} />
+          </div>
+        </div>
+      )}
+
+      {showRegionStats && (
+        <div style={{ border: 1px solid , borderRadius: 10, padding: 12, background: isLight ? '#ffffff' : '#2b3541', marginBottom: 12 }}>
+          West: {results.filter((c) => c.region === 'West').length} | South: {results.filter((c) => c.region === 'South').length} | Midwest: {results.filter((c) => c.region === 'Midwest').length}
+        </div>
+      )}
 
       {selected && (
         <div
@@ -71,7 +105,13 @@ export default function CustomersPage({ theme, user }) {
           >
             Clear
           </button>
-        </div>
+        <button onClick={() => setShowSummary((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showSummary ? 'Hide Summary' : 'Show Summary'}
+        </button>
+        <button onClick={() => setShowRegionStats((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showRegionStats ? 'Hide Region Stats' : 'Show Region Stats'}
+        </button>
+      </div>
       )}
 
       <CustomerList
@@ -92,3 +132,4 @@ export default function CustomersPage({ theme, user }) {
     </section>
   )
 }
+
