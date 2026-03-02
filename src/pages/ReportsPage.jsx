@@ -130,9 +130,9 @@ export default function ReportsPage({ theme, user }) {
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
-        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
-        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+        <span style={{ color: badgeColor('Ready') }}>Ready: {REPORTS.filter((r) => r.status === 'Ready').length}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {REPORTS.filter((r) => r.status === 'Draft').length}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {REPORTS.filter((r) => r.status === 'Blocked').length}</span>
       </div>
 
       {pinReady && (
@@ -155,7 +155,15 @@ export default function ReportsPage({ theme, user }) {
       )}
 
       <div style={{ display: 'grid', gap: 8 }}>
-        {filtered.map((report) => (
+        {REPORTS.filter((report) => {
+          const normalizedQuery = query.trim().toLowerCase()
+          const matchesQuery =
+            report.title.toLowerCase().includes(normalizedQuery) ||
+            report.owner.toLowerCase().includes(normalizedQuery) ||
+            report.status.toLowerCase().includes(normalizedQuery)
+          const matchesStatus = status === 'All' ? true : report.status === status
+          return matchesQuery && matchesStatus
+        }).map((report) => (
           <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
         ))}
       </div>
