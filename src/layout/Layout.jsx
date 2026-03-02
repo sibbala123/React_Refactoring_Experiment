@@ -4,6 +4,16 @@ import Sidebar from '../components/Sidebar'
 export default function Layout({ children, theme, user, onToggleTheme }) {
   const isLight = theme === 'light'
   const location = useLocation()
+  const navItems = [
+    { to: '/', label: 'Home' },
+    { to: '/customers', label: 'Customers' },
+    { to: '/reports', label: 'Reports' },
+  ]
+  const quickStats = [
+    "Route: ",
+    "Role: ",
+    "Theme: ",
+  ]
 
   return (
     <div
@@ -16,6 +26,39 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
       }}
     >
       <Sidebar theme={theme} user={user} currentPath={location.pathname} />
+      <aside
+        style={{
+          width: 220,
+          padding: 14,
+          borderRight: 1px solid ,
+          background: isLight ? '#fdfefe' : '#25303a',
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>Layout Nav Clone</h3>
+        <div style={{ display: 'grid', gap: 8, marginBottom: 10 }}>
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              style={{
+                textDecoration: 'none',
+                border: 1px solid ,
+                borderRadius: 8,
+                padding: '8px 10px',
+                background: location.pathname === item.to ? (isLight ? '#e8f2ff' : '#2f4b67') : isLight ? '#ffffff' : '#2b3541',
+                color: isLight ? '#1c2630' : '#f2f6fb',
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+        <div style={{ border: 1px solid , borderRadius: 8, padding: 10 }}>
+          {quickStats.map((s) => (
+            <div key={s} style={{ marginBottom: 6 }}>{s}</div>
+          ))}
+        </div>
+      </aside>
       <div style={{ flex: 1, padding: 16 }}>
         <header
           style={{
@@ -44,3 +87,4 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
     </div>
   )
 }
+
