@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import ReportRow from '../components/ReportRow'
+import ReportRowDetails from '../components/ReportRowDetails'
 import Toolbar from '../components/Toolbar'
 import { REPORTS } from '../data/mockData'
 import { badgeColor } from '../utils/format'
@@ -160,26 +161,24 @@ export default function ReportsPage({ theme, user }) {
         ))}
       </div>
 
-      {opened && (
-        <div
-          style={{
-            marginTop: 12,
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-          }}
-        >
-          <h3 style={{ marginTop: 0 }}>Open Report</h3>
-          <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
-          <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
-          <p style={{ margin: '4px 0' }}>Status: {opened.status}</p>
-          <p style={{ margin: '4px 0' }}>Updated: {opened.updatedDaysAgo} days ago</p>
-          <button onClick={() => setOpened(null)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-            Close
-          </button>
-        </div>
-      )}
+      <ReportRowDetails
+        title={opened?.title || ''}
+        owner={opened?.owner || ''}
+        status={opened?.status || ''}
+        updatedDaysAgo={opened?.updatedDaysAgo || 0}
+        theme={theme}
+        isOpen={!!opened}
+        showOwner={true}
+        showStatus={true}
+        showUpdated={true}
+        compact={false}
+        pinReady={pinReady}
+        toast={toast}
+        counter={counter}
+        onClose={() => setOpened(null)}
+        onPinToggle={() => setPinReady((prev) => !prev)}
+        onEcho={() => console.log('Echo report details', opened?.id)}
+      />
     </section>
   )
 }
