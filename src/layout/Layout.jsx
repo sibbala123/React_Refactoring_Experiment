@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 
-export default function Layout({ children, theme, user, onToggleTheme }) {
+export default function Layout({ children, theme, user, locale, onToggleTheme }) {
   const isLight = theme === 'light'
   const location = useLocation()
 
@@ -15,7 +15,7 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
         fontFamily: 'Segoe UI, Tahoma, sans-serif',
       }}
     >
-      <Sidebar theme={theme} user={user} currentPath={location.pathname} />
+      <Sidebar theme={theme} user={user} locale={locale} currentPath={location.pathname} />
       <div style={{ flex: 1, padding: 16 }}>
         <header
           style={{

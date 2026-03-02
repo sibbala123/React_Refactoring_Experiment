@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function NavItem({ to, label, currentPath, theme, user }) {
+export default function NavItem({ to, label, currentPath, theme, user, locale }) {
   const isLight = theme === 'light'
   const isActive = currentPath === to
 
@@ -16,7 +16,7 @@ export default function NavItem({ to, label, currentPath, theme, user }) {
         color: isLight ? '#1c2630' : '#f2f6fb',
         display: 'block',
       }}
-      title={`Visible to role: ${user.role}`}
+      title={`Visible to role: ${user.role} (${locale})`}
     >
       {label}
     </Link>

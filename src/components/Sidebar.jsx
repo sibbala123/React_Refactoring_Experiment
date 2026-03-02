@@ -1,6 +1,6 @@
 import NavList from './NavList'
 
-export default function Sidebar({ theme, user, currentPath }) {
+export default function Sidebar({ theme, user, locale, currentPath }) {
   const isLight = theme === 'light'
 
   return (
@@ -13,7 +13,7 @@ export default function Sidebar({ theme, user, currentPath }) {
       }}
     >
       <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Page Truth</h2>
-      <NavList theme={theme} user={user} currentPath={currentPath} />
+      <NavList theme={theme} user={user} locale={locale} currentPath={currentPath} />
     </aside>
   )
 }

@@ -6,11 +6,11 @@ const items = [
   { to: '/reports', label: 'Reports' },
 ]
 
-export default function NavList({ theme, user, currentPath }) {
+export default function NavList({ theme, user, locale, currentPath }) {
   return (
     <nav style={{ display: 'grid', gap: 8 }}>
       {items.map((item) => (
-        <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
+        <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} locale={locale} />
       ))}
     </nav>
   )
