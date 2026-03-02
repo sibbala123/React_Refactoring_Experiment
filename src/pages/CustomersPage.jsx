@@ -74,6 +74,30 @@ export default function CustomersPage({ theme, user }) {
         </div>
       )}
 
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+        }}
+      >
+        {results.length === 0
+          ? query
+            ? 'No customers for this query.'
+            : onlyActive
+              ? 'No active customers.'
+              : 'No customers.'
+          : results.length > 3
+            ? onlyActive
+              ? 'Many active customers shown.'
+              : 'Many customers shown.'
+            : selected
+              ? `Selected and ${results.length} in view.`
+              : `Showing ${results.length} customers.`}
+      </div>
+
       <CustomerList
         customers={results}
         showSpend={true}
