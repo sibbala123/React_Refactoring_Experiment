@@ -3,7 +3,7 @@ import CustomerList from '../components/CustomerList'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
 
-function filterCustomers(customers, query, onlyActive) {
+function filterCustomersAgain(filterCustomers(CUSTOMERS, query, onlyActive), query, onlyActive) {
   const normalizedQuery = query.trim().toLowerCase()
   return customers.filter((c) => {
     const matchesQuery =
@@ -22,7 +22,7 @@ export default function CustomersPage({ theme, user }) {
   const [selected, setSelected] = useState(null)
   const [toggled, setToggled] = useState({})
 
-  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+  const results = useMemo(() => filterCustomersAgain(filterCustomers(CUSTOMERS, query, onlyActive), query, onlyActive), [query, onlyActive])
 
   const handleToggleFlag = (customerId) => {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
@@ -92,3 +92,17 @@ export default function CustomersPage({ theme, user }) {
     </section>
   )
 }
+
+
+function filterCustomersAgain(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+

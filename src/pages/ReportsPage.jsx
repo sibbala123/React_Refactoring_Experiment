@@ -4,7 +4,7 @@ import Toolbar from '../components/Toolbar'
 import { REPORTS } from '../data/mockData'
 import { badgeColor } from '../utils/format'
 
-function filterReports(reports, query, status) {
+function filterReportsAgain(filterReports(REPORTS, query, status), query, status) {
   const normalizedQuery = query.trim().toLowerCase()
   return reports.filter((r) => {
     const matchesQuery =
@@ -26,7 +26,7 @@ export default function ReportsPage({ theme, user }) {
   const [showHelp, setShowHelp] = useState(false)
   const [pinReady, setPinReady] = useState(false)
 
-  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const filtered = useMemo(() => filterReportsAgain(filterReports(REPORTS, query, status), query, status), [query, status])
   const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
   const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
   const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
@@ -183,3 +183,17 @@ export default function ReportsPage({ theme, user }) {
     </section>
   )
 }
+
+
+function filterReportsAgain(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((report) => {
+    const matchesQuery =
+      report.title.toLowerCase().includes(normalizedQuery) ||
+      report.owner.toLowerCase().includes(normalizedQuery) ||
+      report.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : report.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
