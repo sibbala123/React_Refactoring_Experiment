@@ -119,7 +119,7 @@ export default function ReportsPage({ theme, user }) {
         <div
           style={{
             marginBottom: 12,
-            border: 1px solid ,
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
             borderRadius: 10,
             padding: 12,
             background: isLight ? '#ffffff' : '#2b3541',
