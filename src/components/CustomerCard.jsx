@@ -1,4 +1,10 @@
-import { formatCurrency } from '../utils/format'
+function localFormatCurrency(n) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(n)
+}
 
 export default function CustomerCard({
   id,
@@ -41,7 +47,7 @@ export default function CustomerCard({
       <div style={{ marginTop: 6, fontSize: 14 }}>
         {showTier && <div>Tier: {tier}</div>}
         {showRegion && <div>Region: {region}</div>}
-        {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
+        {showSpend && <div>Spend: {localFormatCurrency(spend)}</div>}
         <div>Toggled: {isToggled ? 'On' : 'Off'}</div>
       </div>
 
@@ -59,3 +65,4 @@ export default function CustomerCard({
     </article>
   )
 }
+
