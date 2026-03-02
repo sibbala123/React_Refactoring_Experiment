@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import CustomerList from '../components/CustomerList'
+import CustomerListShell from '../components/CustomerListShell'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
 
@@ -74,7 +74,7 @@ export default function CustomersPage({ theme, user }) {
         </div>
       )}
 
-      <CustomerList
+      <CustomerListShell
         customers={results}
         showSpend={true}
         showRegion={true}
