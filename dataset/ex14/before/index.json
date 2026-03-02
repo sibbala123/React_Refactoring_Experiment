@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-03-02T08:58:58.610Z",
+  "baseUrl": "http://localhost:5173",
+  "outDir": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\dataset\\ex14\\before",
+  "routeStates": [
+    {
+      "route": "/",
+      "state": "default"
+    },
+    {
+      "route": "/customers",
+      "state": "default"
+    },
+    {
+      "route": "/customers",
+      "state": "filtered"
+    },
+    {
+      "route": "/customers",
+      "state": "selected"
+    },
+    {
+      "route": "/reports",
+      "state": "default"
+    },
+    {
+      "route": "/reports",
+      "state": "help_open"
+    },
+    {
+      "route": "/reports",
+      "state": "opened_report"
+    },
+    {
+      "route": "/reports",
+      "state": "pinned_ready"
+    }
+  ],
+  "files": {
+    "truth": [
+      {
+        "file": "truth__home__default.json",
+        "route": "/",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:40.672Z"
+      },
+      {
+        "file": "truth__customers__default.json",
+        "route": "/customers",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:41.355Z"
+      },
+      {
+        "file": "truth__customers__filtered.json",
+        "route": "/customers",
+        "state": "filtered",
+        "generatedAt": "2026-03-02T08:58:42.077Z"
+      },
+      {
+        "file": "truth__customers__selected.json",
+        "route": "/customers",
+        "state": "selected",
+        "generatedAt": "2026-03-02T08:58:42.797Z"
+      },
+      {
+        "file": "truth__reports__default.json",
+        "route": "/reports",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:43.444Z"
+      },
+      {
+        "file": "truth__reports__help_open.json",
+        "route": "/reports",
+        "state": "help_open",
+        "generatedAt": "2026-03-02T08:58:44.156Z"
+      },
+      {
+        "file": "truth__reports__opened_report.json",
+        "route": "/reports",
+        "state": "opened_report",
+        "generatedAt": "2026-03-02T08:58:44.876Z"
+      },
+      {
+        "file": "truth__reports__pinned_ready.json",
+        "route": "/reports",
+        "state": "pinned_ready",
+        "generatedAt": "2026-03-02T08:58:45.591Z"
+      }
+    ],
+    "dom": [
+      {
+        "file": "dom__home__default.html",
+        "route": "/",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:46.852Z"
+      },
+      {
+        "file": "dom__customers__default.html",
+        "route": "/customers",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:47.510Z"
+      },
+      {
+        "file": "dom__customers__filtered.html",
+        "route": "/customers",
+        "state": "filtered",
+        "generatedAt": "2026-03-02T08:58:48.195Z"
+      },
+      {
+        "file": "dom__customers__selected.html",
+        "route": "/customers",
+        "state": "selected",
+        "generatedAt": "2026-03-02T08:58:48.923Z"
+      },
+      {
+        "file": "dom__reports__default.html",
+        "route": "/reports",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:49.559Z"
+      },
+      {
+        "file": "dom__reports__help_open.html",
+        "route": "/reports",
+        "state": "help_open",
+        "generatedAt": "2026-03-02T08:58:50.281Z"
+      },
+      {
+        "file": "dom__reports__opened_report.html",
+        "route": "/reports",
+        "state": "opened_report",
+        "generatedAt": "2026-03-02T08:58:51.019Z"
+      },
+      {
+        "file": "dom__reports__pinned_ready.html",
+        "route": "/reports",
+        "state": "pinned_ready",
+        "generatedAt": "2026-03-02T08:58:51.770Z"
+      }
+    ],
+    "screens": [
+      {
+        "file": "screen__home__default.png",
+        "route": "/",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:53.085Z"
+      },
+      {
+        "file": "screen__customers__default.png",
+        "route": "/customers",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:53.820Z"
+      },
+      {
+        "file": "screen__customers__filtered.png",
+        "route": "/customers",
+        "state": "filtered",
+        "generatedAt": "2026-03-02T08:58:54.608Z"
+      },
+      {
+        "file": "screen__customers__selected.png",
+        "route": "/customers",
+        "state": "selected",
+        "generatedAt": "2026-03-02T08:58:55.438Z"
+      },
+      {
+        "file": "screen__reports__default.png",
+        "route": "/reports",
+        "state": "default",
+        "generatedAt": "2026-03-02T08:58:56.156Z"
+      },
+      {
+        "file": "screen__reports__help_open.png",
+        "route": "/reports",
+        "state": "help_open",
+        "generatedAt": "2026-03-02T08:58:56.957Z"
+      },
+      {
+        "file": "screen__reports__opened_report.png",
+        "route": "/reports",
+        "state": "opened_report",
+        "generatedAt": "2026-03-02T08:58:57.740Z"
+      },
+      {
+        "file": "screen__reports__pinned_ready.png",
+        "route": "/reports",
+        "state": "pinned_ready",
+        "generatedAt": "2026-03-02T08:58:58.521Z"
+      }
+    ]
+  }
+}

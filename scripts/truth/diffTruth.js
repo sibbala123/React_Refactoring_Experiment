@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { getCliArg } from './helpers.js'
+import { getCliArg, writeJson } from './helpers.js'
 
 const STYLE_FIELDS = ['color', 'backgroundColor', 'fontSize', 'fontWeight', 'borderRadius', 'display', 'visibility']
 const BOX_FIELDS = ['x', 'y', 'w', 'h']
@@ -22,17 +22,6 @@ async function readTruthFolder(folder) {
   return map
 }
 
-function diffPrimitive(baseVal, candVal, label, diffs) {
-  if (baseVal !== candVal) {
-    diffs.push(`${label}: "${baseVal}" -> "${candVal}"`)
-  }
-}
-
-function routeStateLabel(doc, fallback) {
-  if (!doc || !doc.route || !doc.state) return fallback
-  return `${doc.route}#${doc.state}`
-}
-
 function elementsByKey(elements) {
   const map = new Map()
   for (const el of elements) {
@@ -42,113 +31,199 @@ function elementsByKey(elements) {
   return map
 }
 
-function keysByOrder(elements) {
-  return [...elements]
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    .map((el) => el.key)
+function routeStateLabel(route, state) {
+  return `${route}#${state}`
 }
 
-function compareElementsByKey(label, baseElements, candElements, diffs) {
-  const baseMap = elementsByKey(baseElements)
-  const candMap = elementsByKey(candElements)
+function createRouteReport(baseDoc, candDoc) {
+  const route = candDoc?.route || baseDoc?.route || ''
+  const state = candDoc?.state || baseDoc?.state || ''
 
-  for (const key of baseMap.keys()) {
-    if (!candMap.has(key)) {
-      diffs.push(`[${label}] missing in candidate: key=${key}`)
-    }
-  }
-  for (const key of candMap.keys()) {
-    if (!baseMap.has(key)) {
-      diffs.push(`[${label}] extra in candidate: key=${key}`)
-    }
-  }
+  const beforeElements = Array.isArray(baseDoc?.elements) ? baseDoc.elements : []
+  const afterElements = Array.isArray(candDoc?.elements) ? candDoc.elements : []
 
-  const shared = [...baseMap.keys()].filter((key) => candMap.has(key)).sort((a, b) => a.localeCompare(b))
-  for (const key of shared) {
-    const b = baseMap.get(key)
-    const c = candMap.get(key)
-    const prefix = `[${label}] key=${key}`
+  const beforeMap = elementsByKey(beforeElements)
+  const afterMap = elementsByKey(afterElements)
 
-    diffPrimitive(b.role, c.role, `${prefix}.role`, diffs)
-    diffPrimitive(b.name, c.name, `${prefix}.name`, diffs)
-    diffPrimitive(b.order, c.order, `${prefix}.order`, diffs)
+  const added = []
+  const removed = []
+  const geometryChanges = []
+  const styleChanges = []
+  const orderChanges = []
 
-    for (const boxField of BOX_FIELDS) {
-      diffPrimitive(b.box?.[boxField], c.box?.[boxField], `${prefix}.box.${boxField}`, diffs)
-    }
-    for (const styleField of STYLE_FIELDS) {
-      diffPrimitive(b.style?.[styleField], c.style?.[styleField], `${prefix}.style.${styleField}`, diffs)
+  for (const key of beforeMap.keys()) {
+    if (!afterMap.has(key)) {
+      removed.push(key)
     }
   }
 
-  const baseOrder = keysByOrder(baseElements)
-  const candOrder = keysByOrder(candElements)
-  if (baseOrder.length !== candOrder.length) {
-    diffs.push(`[${label}] order regression: key count ${baseOrder.length} -> ${candOrder.length}`)
-  } else {
-    for (let i = 0; i < baseOrder.length; i += 1) {
-      if (baseOrder[i] !== candOrder[i]) {
-        diffs.push(
-          `[${label}] order regression at index ${i}: baseline=${baseOrder[i]} candidate=${candOrder[i]}`,
-        )
+  for (const key of afterMap.keys()) {
+    if (!beforeMap.has(key)) {
+      added.push(key)
+    }
+  }
+
+  const sharedKeys = [...beforeMap.keys()].filter((k) => afterMap.has(k)).sort((a, b) => a.localeCompare(b))
+  for (const key of sharedKeys) {
+    const before = beforeMap.get(key)
+    const after = afterMap.get(key)
+
+    const dx = Number(((after.box?.x ?? 0) - (before.box?.x ?? 0)).toFixed(2))
+    const dy = Number(((after.box?.y ?? 0) - (before.box?.y ?? 0)).toFixed(2))
+    const dw = Number(((after.box?.w ?? 0) - (before.box?.w ?? 0)).toFixed(2))
+    const dh = Number(((after.box?.h ?? 0) - (before.box?.h ?? 0)).toFixed(2))
+    if (Math.abs(dx) > 0 || Math.abs(dy) > 0 || Math.abs(dw) > 0 || Math.abs(dh) > 0) {
+      geometryChanges.push({ key, dx, dy, dw, dh })
+    }
+
+    const styleFieldChanges = {}
+    for (const field of STYLE_FIELDS) {
+      const beforeValue = before.style?.[field]
+      const afterValue = after.style?.[field]
+      if (beforeValue !== afterValue) {
+        styleFieldChanges[field] = [beforeValue, afterValue]
       }
     }
+    if (Object.keys(styleFieldChanges).length > 0) {
+      styleChanges.push({ key, fields: styleFieldChanges })
+    }
+
+    if ((before.order ?? 0) !== (after.order ?? 0)) {
+      orderChanges.push({ key, before: before.order, after: after.order })
+    }
   }
+
+  return {
+    route,
+    state,
+    summary: {
+      elementCountBefore: beforeElements.length,
+      elementCountAfter: afterElements.length,
+      added: added.length,
+      removed: removed.length,
+      geometryChanges: geometryChanges.length,
+      styleChanges: styleChanges.length,
+      orderChanges: orderChanges.length,
+    },
+    details: {
+      added,
+      removed,
+      geometryChanges,
+      styleChanges,
+      orderChanges,
+    },
+  }
+}
+
+function printRouteSummary(report) {
+  const label = routeStateLabel(report.route, report.state)
+  console.log(`[${label}]`)
+  console.log(`  elements: ${report.summary.elementCountBefore} -> ${report.summary.elementCountAfter}`)
+  console.log(`  added: ${report.summary.added}`)
+  console.log(`  removed: ${report.summary.removed}`)
+  console.log(`  geometryChanges: ${report.summary.geometryChanges}`)
+  console.log(`  styleChanges: ${report.summary.styleChanges}`)
+  console.log(`  orderChanges: ${report.summary.orderChanges}`)
+}
+
+function shouldFail(report) {
+  return (
+    report.summary.added > 0 ||
+    report.summary.removed > 0 ||
+    report.summary.geometryChanges > 0 ||
+    report.summary.styleChanges > 0
+  )
 }
 
 async function run() {
   const cwd = process.cwd()
   const baseArg = getCliArg('--base') || 'truth_baseline'
   const candArg = getCliArg('--cand') || 'truth_candidate'
+  const reportArg = getCliArg('--report') || 'truth_diff_report.json'
   const baselineDir = path.isAbsolute(baseArg) ? baseArg : path.join(cwd, baseArg)
   const candidateDir = path.isAbsolute(candArg) ? candArg : path.join(cwd, candArg)
+  const reportPath = path.isAbsolute(reportArg) ? reportArg : path.join(cwd, reportArg)
 
   const [baseMap, candMap] = await Promise.all([readTruthFolder(baselineDir), readTruthFolder(candidateDir)])
-
-  const diffs = []
   const baseFiles = [...baseMap.keys()]
   const candFiles = [...candMap.keys()]
 
+  const reports = []
+
   for (const file of baseFiles) {
-    if (!candMap.has(file)) diffs.push(`Missing in candidate folder: ${file}`)
-  }
-  for (const file of candFiles) {
-    if (!baseMap.has(file)) diffs.push(`Missing in baseline folder: ${file}`)
+    if (!candMap.has(file)) {
+      const baseDoc = baseMap.get(file)
+      reports.push({
+        route: baseDoc?.route || file,
+        state: baseDoc?.state || 'unknown',
+        summary: {
+          elementCountBefore: Array.isArray(baseDoc?.elements) ? baseDoc.elements.length : 0,
+          elementCountAfter: 0,
+          added: 0,
+          removed: Array.isArray(baseDoc?.elements) ? baseDoc.elements.length : 0,
+          geometryChanges: 0,
+          styleChanges: 0,
+          orderChanges: 0,
+        },
+        details: {
+          added: [],
+          removed: Array.isArray(baseDoc?.elements) ? baseDoc.elements.map((el) => el.key).filter(Boolean) : [],
+          geometryChanges: [],
+          styleChanges: [],
+          orderChanges: [],
+        },
+      })
+    }
   }
 
-  const shared = baseFiles.filter((file) => candMap.has(file)).sort((a, b) => a.localeCompare(b))
-  for (const file of shared) {
+  for (const file of candFiles) {
+    if (!baseMap.has(file)) {
+      const candDoc = candMap.get(file)
+      reports.push({
+        route: candDoc?.route || file,
+        state: candDoc?.state || 'unknown',
+        summary: {
+          elementCountBefore: 0,
+          elementCountAfter: Array.isArray(candDoc?.elements) ? candDoc.elements.length : 0,
+          added: Array.isArray(candDoc?.elements) ? candDoc.elements.length : 0,
+          removed: 0,
+          geometryChanges: 0,
+          styleChanges: 0,
+          orderChanges: 0,
+        },
+        details: {
+          added: Array.isArray(candDoc?.elements) ? candDoc.elements.map((el) => el.key).filter(Boolean) : [],
+          removed: [],
+          geometryChanges: [],
+          styleChanges: [],
+          orderChanges: [],
+        },
+      })
+    }
+  }
+
+  const sharedFiles = baseFiles.filter((file) => candMap.has(file)).sort((a, b) => a.localeCompare(b))
+  for (const file of sharedFiles) {
     const baseDoc = baseMap.get(file)
     const candDoc = candMap.get(file)
-    const label = routeStateLabel(candDoc, file)
-
-    diffPrimitive(baseDoc.version, candDoc.version, `[${label}].version`, diffs)
-    diffPrimitive(baseDoc.route, candDoc.route, `[${label}].route`, diffs)
-    diffPrimitive(baseDoc.state, candDoc.state, `[${label}].state`, diffs)
-    diffPrimitive(baseDoc.env?.browser, candDoc.env?.browser, `[${label}].env.browser`, diffs)
-    diffPrimitive(baseDoc.env?.viewport?.width, candDoc.env?.viewport?.width, `[${label}].env.viewport.width`, diffs)
-    diffPrimitive(baseDoc.env?.viewport?.height, candDoc.env?.viewport?.height, `[${label}].env.viewport.height`, diffs)
-    diffPrimitive(
-      baseDoc.env?.deviceScaleFactor,
-      candDoc.env?.deviceScaleFactor,
-      `[${label}].env.deviceScaleFactor`,
-      diffs,
-    )
-
-    const baseElements = Array.isArray(baseDoc.elements) ? baseDoc.elements : []
-    const candElements = Array.isArray(candDoc.elements) ? candDoc.elements : []
-    compareElementsByKey(label, baseElements, candElements, diffs)
+    reports.push(createRouteReport(baseDoc, candDoc))
   }
 
-  if (diffs.length) {
-    console.error('Truth diff failed:')
-    for (const line of diffs) {
-      console.error(`- ${line}`)
-    }
+  reports.sort((a, b) => routeStateLabel(a.route, a.state).localeCompare(routeStateLabel(b.route, b.state)))
+  for (const report of reports) {
+    printRouteSummary(report)
+  }
+
+  const output = {
+    generatedAt: new Date().toISOString(),
+    routes: reports,
+  }
+  await writeJson(reportPath, output)
+
+  const hasFailure = reports.some((report) => shouldFail(report))
+  if (hasFailure) {
     process.exit(1)
   }
-
-  console.log('Truth diff passed: no differences found.')
 }
 
 run().catch((err) => {

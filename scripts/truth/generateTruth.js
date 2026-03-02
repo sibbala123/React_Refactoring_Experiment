@@ -1,55 +1,18 @@
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { chromium } from 'playwright'
-import { FIXED_ENV, TRUTH_VERSION, ensureDir, getCliArg, outputFileName, readRoutesConfig, resolveOutputDir, writeJson } from './helpers.js'
-
-const MOTION_RESET_CSS = `
-*,
-*::before,
-*::after {
-  animation: none !important;
-  transition: none !important;
-  scroll-behavior: auto !important;
-}
-`
-
-function normalizeStep(step) {
-  if (!step || typeof step !== 'object') {
-    throw new Error(`Invalid step: ${JSON.stringify(step)}`)
-  }
-  if (step.type) return step
-  for (const type of ['clickByRole', 'typeByPlaceholder', 'selectByLabelOrRole', 'waitForText']) {
-    if (step[type]) {
-      return { type, ...step[type] }
-    }
-  }
-  throw new Error(`Unsupported step shape: ${JSON.stringify(step)}`)
-}
-
-async function runStep(page, rawStep) {
-  const step = normalizeStep(rawStep)
-  if (step.type === 'clickByRole') {
-    await page.getByRole(step.role, { name: step.name }).click()
-    return
-  }
-  if (step.type === 'typeByPlaceholder') {
-    await page.getByPlaceholder(step.placeholder).fill(step.text ?? '')
-    return
-  }
-  if (step.type === 'selectByLabelOrRole') {
-    if (step.role) {
-      await page.getByRole(step.role, { name: step.name }).selectOption(step.value)
-      return
-    }
-    await page.getByLabel(step.name).selectOption(step.value)
-    return
-  }
-  if (step.type === 'waitForText') {
-    await page.getByText(step.text).first().waitFor({ state: 'visible' })
-    return
-  }
-  throw new Error(`Unsupported step type: ${step.type}`)
-}
+import {
+  FIXED_ENV,
+  TRUTH_VERSION,
+  ensureDir,
+  getCliArg,
+  installMotionReset,
+  outputFileName,
+  readRoutesConfig,
+  resolveOutputDir,
+  runConfiguredSteps,
+  writeJson,
+} from './helpers.js'
 
 async function collectElements(page) {
   return page.evaluate(() => {
@@ -198,11 +161,14 @@ async function collectElements(page) {
       return a.name.localeCompare(b.name)
     })
 
+    const roleNameCounts = new Map()
     return picked.map((entry, index) => {
-      const geometryKey = `${entry.role}|${entry.name}|x=${entry.box.x}|y=${entry.box.y}|w=${entry.box.w}|h=${entry.box.h}`
+      const roleNameBase = `${entry.role}|${entry.name}`
+      const nth = (roleNameCounts.get(roleNameBase) || 0) + 1
+      roleNameCounts.set(roleNameBase, nth)
 
       return {
-        key: entry.testId ? `testid:${entry.testId}` : geometryKey,
+        key: entry.testId ? `testid:${entry.testId}` : `${roleNameBase}|nth=${nth}`,
         role: entry.role,
         name: entry.name,
         order: index,
@@ -225,6 +191,7 @@ export async function runTruthGeneration(outDirArg = 'truth') {
     deviceScaleFactor: FIXED_ENV.deviceScaleFactor,
     reducedMotion: 'reduce',
   })
+  await installMotionReset(context)
 
   const generated = []
   try {
@@ -233,12 +200,9 @@ export async function runTruthGeneration(outDirArg = 'truth') {
       for (const state of states) {
         const page = await context.newPage()
         await page.goto(`${baseUrl}${route.path}`, { waitUntil: 'networkidle' })
-        await page.addStyleTag({ content: MOTION_RESET_CSS })
 
         const steps = Array.isArray(state.steps) ? state.steps : []
-        for (const step of steps) {
-          await runStep(page, step)
-        }
+        await runConfiguredSteps(page, steps)
 
         const elements = await collectElements(page)
         const fileName = outputFileName(route.path, state.name)
@@ -267,6 +231,8 @@ export async function runTruthGeneration(outDirArg = 'truth') {
     generatedAt: new Date().toISOString(),
     files: generated,
   })
+
+  return generated
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

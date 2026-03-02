@@ -1,0 +1,24 @@
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/HomePage.jsx
+similarity index 85%
+rename from src/pages/CustomersPage.jsx
+rename to src/pages/HomePage.jsx
+--- a/src/pages/CustomersPage.jsx
++++ b/src/pages/HomePage.jsx
+@@ -1,3 +1,4 @@
+ import { useMemo, useState } from 'react'
++import Toolbar from '../components/Toolbar'
+ 
+ function filterCustomers(customers, query, onlyActive) {
+   const normalizedQuery = query.trim().toLowerCase()
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/CustomersPage.jsx
+similarity index 85%
+rename from src/pages/HomePage.jsx
+rename to src/pages/CustomersPage.jsx
+--- a/src/pages/HomePage.jsx
++++ b/src/pages/CustomersPage.jsx
+@@ -1,4 +1,3 @@
+ import { useMemo, useState } from 'react'
+-import Toolbar from '../components/Toolbar'
+ 
+ function filterCustomers(customers, query, onlyActive) {
+   const normalizedQuery = query.trim().toLowerCase()

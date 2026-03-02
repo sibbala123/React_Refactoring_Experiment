@@ -1,0 +1,165 @@
+{
+  "generatedAt": "2026-03-02T03:24:14.898Z",
+  "routes": [
+    {
+      "route": "/",
+      "state": "default",
+      "summary": {
+        "elementCountBefore": 11,
+        "elementCountAfter": 11,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/customers",
+      "state": "default",
+      "summary": {
+        "elementCountBefore": 16,
+        "elementCountAfter": 16,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/customers",
+      "state": "filtered",
+      "summary": {
+        "elementCountBefore": 16,
+        "elementCountAfter": 16,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/customers",
+      "state": "selected",
+      "summary": {
+        "elementCountBefore": 17,
+        "elementCountAfter": 17,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/reports",
+      "state": "default",
+      "summary": {
+        "elementCountBefore": 15,
+        "elementCountAfter": 15,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/reports",
+      "state": "help_open",
+      "summary": {
+        "elementCountBefore": 14,
+        "elementCountAfter": 14,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/reports",
+      "state": "opened_report",
+      "summary": {
+        "elementCountBefore": 14,
+        "elementCountAfter": 14,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    },
+    {
+      "route": "/reports",
+      "state": "pinned_ready",
+      "summary": {
+        "elementCountBefore": 14,
+        "elementCountAfter": 14,
+        "added": 0,
+        "removed": 0,
+        "geometryChanges": 0,
+        "styleChanges": 0,
+        "orderChanges": 0
+      },
+      "details": {
+        "added": [],
+        "removed": [],
+        "geometryChanges": [],
+        "styleChanges": [],
+        "orderChanges": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+diff --git a/src/components/ReportRows.jsx b/src/components/ReportRows.jsx
+--- a/src/components/ReportRows.jsx
++++ b/src/components/ReportRows.jsx
+@@ -1,7 +1,6 @@
+ import ReportRow from './ReportRow'
+ 
+ function ReportRowsBody({ reports, theme, onOpen }) {
+-  return (
+-    <>
+-      {reports.map((report) => (
+-        <ReportRow key={report.id} report={report} theme={theme} onOpen={onOpen} />
+-      ))}
+-    </>
++  return reports.map((report) => <ReportRow key={report.id} report={report} theme={theme} onOpen={onOpen} />);
+ }
+ 
+ export default function ReportRows({ reports, theme, onOpen }) {
+   return <ReportRowsBody reports={reports} theme={theme} onOpen={onOpen} />
+ }

@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-03-02T09:04:29.958Z",
+  "files": [
+    {
+      "file": "truth__home__default.json",
+      "route": "/",
+      "state": "default",
+      "generatedAt": "2026-03-02T09:04:24.857Z"
+    },
+    {
+      "file": "truth__customers__default.json",
+      "route": "/customers",
+      "state": "default",
+      "generatedAt": "2026-03-02T09:04:25.541Z"
+    },
+    {
+      "file": "truth__customers__filtered.json",
+      "route": "/customers",
+      "state": "filtered",
+      "generatedAt": "2026-03-02T09:04:26.272Z"
+    },
+    {
+      "file": "truth__customers__selected.json",
+      "route": "/customers",
+      "state": "selected",
+      "generatedAt": "2026-03-02T09:04:27.036Z"
+    },
+    {
+      "file": "truth__reports__default.json",
+      "route": "/reports",
+      "state": "default",
+      "generatedAt": "2026-03-02T09:04:27.686Z"
+    },
+    {
+      "file": "truth__reports__help_open.json",
+      "route": "/reports",
+      "state": "help_open",
+      "generatedAt": "2026-03-02T09:04:28.409Z"
+    },
+    {
+      "file": "truth__reports__opened_report.json",
+      "route": "/reports",
+      "state": "opened_report",
+      "generatedAt": "2026-03-02T09:04:29.145Z"
+    },
+    {
+      "file": "truth__reports__pinned_ready.json",
+      "route": "/reports",
+      "state": "pinned_ready",
+      "generatedAt": "2026-03-02T09:04:29.862Z"
+    }
+  ]
+}

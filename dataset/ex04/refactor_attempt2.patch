@@ -1,0 +1,65 @@
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/CustomersPage.jsx
+--- a/src/pages/CustomersPage.jsx
++++ b/src/pages/CustomersPage.jsx
+@@ -1,6 +1,7 @@
+ import { useMemo, useState } from 'react'
+ import CustomerList from '../components/CustomerList'
++import useFilter from '../hooks/useFilter'
+ import Toolbar from '../components/Toolbar'
+ import { CUSTOMERS } from '../data/mockData'
+
+ function CustomersPage({ theme, user }) {
+   const isLight = theme === 'light'
+@@ -10,7 +11,7 @@ function CustomersPage({ theme, user }) {
+   const [onlyActive, setOnlyActive] = useState(false)
+   const [selected, setSelected] = useState(null)
+   const [toggled, setToggled] = useState({})
+-  const results = useMemo(() => filterCustomersAgain(filterCustomers(CUSTOMERS, query, onlyActive), query, onlyActive), [query, onlyActive])
++  const results = useFilter(CUSTOMERS, query, onlyActive)
+
+   const handleToggleFlag = (customerId) => {
+     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useMemo, useState } from 'react'
+ import ReportRow from '../components/ReportRow'
++import useFilter from '../hooks/useFilter'
+ import Toolbar from '../components/Toolbar'
+ import { REPORTS } from '../data/mockData'
+ import { badgeColor } from '../utils/format'
+
+ function ReportsPage({ theme, user }) {
+   const isLight = theme === 'light'
+@@ -10,7 +11,7 @@ function ReportsPage({ theme, user }) {
+   const [status, setStatus] = useState('All')
+   const [opened, setOpened] = useState(null)
+   const [toast, setToast] = useState('')
+-  const filtered = useMemo(() => filterReportsAgain(filterReports(REPORTS, query, status), query, status), [query, status])
++  const filtered = useFilter(REPORTS, query, status)
+
+   useEffect(() => {
+     if (!toast) {
+diff --git a/src/hooks/useFilter.js b/src/hooks/useFilter.js
+new file mode 100644
+--- /dev/null
++++ b/src/hooks/useFilter.js
+@@ -0,0 +1,23 @@
++import { useMemo } from 'react'
++
++function filterItems(items, query, predicate) {
++  const normalizedQuery = query.trim().toLowerCase()
++  return items.filter((item) => {
++    const matchesQuery =
++      item.title.toLowerCase().includes(normalizedQuery) ||
++      item.owner.toLowerCase().includes(normalizedQuery) ||
++      item.status.toLowerCase().includes(normalizedQuery)
++    const matchesPredicate = predicate(item)
++    return matchesQuery && matchesPredicate
++  })
++}
++
++export default function useFilter(items, query, predicate) {
++  return useMemo(() => filterItems(items, query, predicate), [items, query, predicate])
++}

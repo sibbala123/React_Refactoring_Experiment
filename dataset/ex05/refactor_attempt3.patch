@@ -1,0 +1,61 @@
+diff --git a/src/components/CustomerCard.jsx b/src/components/CustomerCard.jsx
+--- a/src/components/CustomerCard.jsx
++++ b/src/components/CustomerCard.jsx
+@@ -1,6 +1,7 @@
+ import React from 'react';
++import { formatCurrency } from '../utils/formatUtils';
+
+ function localFormatCurrency(n) {
+   return new Intl.NumberFormat('en-US', {
+     style: 'currency',
+     currency: 'USD',
+     maximumFractionDigits: 0,
+@@ -23,7 +24,7 @@ export default function CustomerCard({
+       <div style={{ marginTop: 6, fontSize: 14 }}>
+         {showTier && <div>Tier: {tier}</div>}
+         {showRegion && <div>Region: {region}</div>}
+-        {showSpend && <div>Spend: {localFormatCurrency(spend)}</div>}
++        {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
+         <div>Toggled: {isToggled ? 'On' : 'Off'}</div>
+       </div>
+
+diff --git a/src/components/ReportRow.jsx b/src/components/ReportRow.jsx
+--- a/src/components/ReportRow.jsx
++++ b/src/components/ReportRow.jsx
+@@ -1,6 +1,7 @@
+ import React from 'react';
++import { getBadgeColor } from '../utils/formatUtils';
+
+ export default function ReportRow({ report, theme, onOpen }) {
+   const isLight = theme === 'light'
+
+@@ -30,7 +31,7 @@ export default function ReportRow({ report, theme, onOpen }) {
+         <div style={{ fontSize: 14, opacity: 0.85 }}>Owner: {report.owner}</div>
+         <div style={{ fontSize: 14, color: localBadgeColor(report.status) }}>{report.status}</div>
+       </div>
+-      <button onClick={() => onOpen(report)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
++      <button onClick={() => onOpen(report)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3', color: getBadgeColor(report.status) }}>
+         Open
+       </button>
+     </div>
+diff --git a/src/utils/formatUtils.js b/src/utils/formatUtils.js
+new file mode 100644
+--- /dev/null
++++ b/src/utils/formatUtils.js
+@@ -0,0 +1,23 @@
++import React from 'react';
+
++export function formatCurrency(n) {
++  return new Intl.NumberFormat('en-US', {
++    style: 'currency',
++    currency: 'USD',
++    maximumFractionDigits: 0,
++  }).format(n);
++}
+
++export function getBadgeColor(status) {
++  if (status === 'Ready') return '#1d8348';
++  if (status === 'Draft') return '#af601a';
++  if (status === 'Blocked') return '#b03a2e';
++  return '#4d5656';
++}

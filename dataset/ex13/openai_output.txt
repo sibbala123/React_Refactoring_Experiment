@@ -1,0 +1,23 @@
+BEGIN_UNIFIED_DIFF
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -152,7 +152,7 @@
+           <div style={{ display: 'grid', gap: 8 }}>
+             {REPORTS.filter((report) => {
+               const normalizedQuery = query.trim().toLowerCase()
+-              const matchesQuery =
++              const matchesQuery = report.title.toLowerCase().includes(normalizedQuery) ||
+                 report.owner.toLowerCase().includes(normalizedQuery) ||
+                 report.status.toLowerCase().includes(normalizedQuery)
+               const matchesStatus = status === 'All' ? true : report.status === status
+@@ -160,7 +160,7 @@
+             }).map((report) => (
+               <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+             ))}
+-          </div>
++          </div>
+ 
+           {opened && (
+             <div
+END_UNIFIED_DIFF

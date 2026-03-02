@@ -1,0 +1,50 @@
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/CustomersPage.jsx
+--- a/src/pages/CustomersPage.jsx
++++ b/src/pages/CustomersPage.jsx
+@@ -1,4 +1,5 @@
+ import { useMemo, useState } from 'react'
++import filterCustomers from '../utils/filterCustomers'
+ import CustomerList from '../components/CustomerList'
+ import Toolbar from '../components/Toolbar'
+ import { CUSTOMERS } from '../data/mockData'
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useMemo, useState } from 'react'
++import filterReports from '../utils/filterReports'
+ import ReportRow from '../components/ReportRow'
+ import Toolbar from '../components/Toolbar'
+ import { REPORTS } from '../data/mockData'
+diff --git a/src/utils/filterCustomers.js b/src/utils/filterCustomers.js
+new file mode 100644
+--- /dev/null
++++ b/src/utils/filterCustomers.js
+@@ -0,0 +1,23 @@
++export default function filterCustomers(customers, query, onlyActive) {
++  const normalizedQuery = query.trim().toLowerCase()
++  return customers.filter((c) => {
++    const matchesQuery =
++      c.name.toLowerCase().includes(normalizedQuery) ||
++      c.region.toLowerCase().includes(normalizedQuery) ||
++      c.tier.toLowerCase().includes(normalizedQuery)
++    const matchesActive = onlyActive ? c.active : true
++    return matchesQuery && matchesActive
++  })
++}
+diff --git a/src/utils/filterReports.js b/src/utils/filterReports.js
+new file mode 100644
+--- /dev/null
++++ b/src/utils/filterReports.js
+@@ -0,0 +1,23 @@
++export default function filterReports(reports, query, status) {
++  const normalizedQuery = query.trim().toLowerCase()
++  return reports.filter((r) => {
++    const matchesQuery =
++      r.title.toLowerCase().includes(normalizedQuery) ||
++      r.owner.toLowerCase().includes(normalizedQuery) ||
++      r.status.toLowerCase().includes(normalizedQuery)
++    const matchesStatus = status === 'All' ? true : r.status === status
++    return matchesQuery && matchesStatus
++  })
++}

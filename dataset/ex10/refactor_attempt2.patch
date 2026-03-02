@@ -1,0 +1,20 @@
+diff --git a/src/components/NavList.jsx b/src/components/NavList.jsx
+--- a/src/components/NavList.jsx
++++ b/src/components/NavList.jsx
+@@ -3,7 +3,6 @@ import NavItemShell from './NavItemShell'
+ 
+ const items = [
+   { to: '/', label: 'Home' },
+-  { to: '/customers', label: 'Customers' },
+   { to: '/reports', label: 'Reports' },
+ ]
+ 
+@@ -12,7 +11,6 @@ export default function NavList({ theme, user, currentPath }) {
+     <nav style={{ display: 'grid', gap: 8 }}>
+       {items.map((item) => (
+         <NavItemShell key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
+-      ))}
++      ))}
+     </nav>
+   )
+ }

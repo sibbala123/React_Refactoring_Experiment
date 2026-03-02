@@ -1,0 +1,75 @@
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -10,7 +10,6 @@ import { REPORTS } from '../data/mockData'
+ import { badgeColor } from '../utils/format'
+
+ function filterReports(reports, query, status) {
+-  const normalizedQuery = query.trim().toLowerCase()
+   return reports.filter((r) => {
+     const matchesQuery =
+       r.title.toLowerCase().includes(query.toLowerCase()) ||
+@@ -18,7 +17,6 @@ function filterReports(reports, query, status) {
+     const matchesStatus = status === 'All' ? true : r.status === status
+     return matchesQuery && matchesStatus
+   })
+-}
+
+ export default function ReportsPage({ theme, user }) {
+   const isLight = theme === 'light'
+@@ -102,7 +100,6 @@ export default function ReportsPage({ theme, user }) {
+       <div style={styles.statusCount}>
+         <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+         <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+-        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+       </div>
+
+       {pinReady && (
+@@ -120,7 +117,6 @@ export default function ReportsPage({ theme, user }) {
+         <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
+         {pinnedReadyReports.map((report) => (
+           <div key={report.id} style={styles.pinnedReport}>
+-            {report.title} - {report.owner}
+           </div>
+         ))}
+       </div>
+
+       <div style={styles.statusMarkers}>
+         {REPORTS.map((report) =>
+           report.status === 'Blocked' ? (
+             <div key={`marker-${report.id}`} style={{ color: badgeColor('Blocked') }}>
+-              {report.title} needs attention.
+             </div>
+           ) : report.status === 'Draft' ? (
+             <div key={`marker-${report.id}`} style={{ color: badgeColor('Draft') }}>
+-              {report.title} still drafting.
+             </div>
+           ) : (
+             <div key={`marker-${report.id}`} style={{ color: badgeColor('Ready') }}>
+-              {report.title} ready to share.
+             </div>
+           ),
+         )}
+       </div>
+
+       <div style={styles.reportGrid}>
+         {filtered.map((report) => (
+           <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+         ))}
+       </div>
+
+       {opened && (
+         <div style={styles.openedReport}>
+           <h3 style={{ marginTop: 0 }}>Open Report</h3>
+           <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
+           <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
+           <p style={{ margin: '4px 0' }}>Status: {opened.status}</p>
+           <p style={{ margin: '4px 0' }}>Updated: {opened.updatedDaysAgo} days ago</p>
+           <button onClick={() => setOpened(null)} style={styles.closeButton}>
+             Close
+           </button>
+         </div>
+       )}
+     </section>
+   )
+ }

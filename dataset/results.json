@@ -1,0 +1,395 @@
+{
+  "generatedAt": "2026-03-02T09:12:32.818Z",
+  "tasks": [
+    {
+      "id": "ex01",
+      "smell": "Large Component",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex01_smelly",
+      "after_branch": "ex01_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: patch fragment without header at line 49: @@ -337,6 +342,7 @@ export default function ReportsPage({ theme, user }) {",
+      "log": "dataset\\ex01\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex01\\before",
+        "after": "dataset\\ex01\\after",
+        "report": "dataset\\ex01\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex02",
+      "smell": "Large Component",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex02_smelly",
+      "after_branch": "ex02_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "Request timed out.",
+      "log": "dataset\\ex02\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex02\\before",
+        "after": "dataset\\ex02\\after",
+        "report": "dataset\\ex02\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex03",
+      "smell": "Large Component",
+      "attempts_used": 0,
+      "patch_mode": "none",
+      "before_branch": "ex03_smelly",
+      "after_branch": "ex03_refactored",
+      "patch_status": "CHECKOUT_BEFORE_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: Your local changes to the following files would be overwritten by checkout:\n\tsrc/layout/Layout.jsx\nPlease commit your changes or stash them before you switch branches.\nAborting",
+      "log": "dataset\\ex03\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex03\\before",
+        "after": "dataset\\ex03\\after",
+        "report": "dataset\\ex03\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex04",
+      "smell": "Duplicated Code",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex04_smelly",
+      "after_branch": "ex04_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: patch fragment without header at line 14: @@ -14,8 +15,7 @@ function CustomersPage({ theme, user }) {",
+      "log": "dataset\\ex04\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex04\\before",
+        "after": "dataset\\ex04\\after",
+        "report": "dataset\\ex04\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex05",
+      "smell": "Duplicated Code",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex05_smelly",
+      "after_branch": "ex05_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: patch fragment without header at line 13: @@ -23,7 +24,7 @@ export default function CustomerCard({",
+      "log": "dataset\\ex05\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex05\\before",
+        "after": "dataset\\ex05\\after",
+        "report": "dataset\\ex05\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex06",
+      "smell": "Duplicated Code",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex06_smelly",
+      "after_branch": "ex06_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: patch failed: src/pages/CustomersPage.jsx:1\nerror: src/pages/CustomersPage.jsx: patch does not apply\nerror: patch failed: src/pages/HomePage.jsx:1\nerror: src/pages/HomePage.jsx: patch does not apply",
+      "log": "dataset\\ex06\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex06\\before",
+        "after": "dataset\\ex06\\after",
+        "report": "dataset\\ex06\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex07",
+      "smell": "Too Many Props",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex07_smelly",
+      "after_branch": "ex07_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "Request timed out.",
+      "log": "dataset\\ex07\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex07\\before",
+        "after": "dataset\\ex07\\after",
+        "report": "dataset\\ex07\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex08",
+      "smell": "Too Many Props",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex08_smelly",
+      "after_branch": "ex08_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: corrupt patch at line 23",
+      "log": "dataset\\ex08\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex08\\before",
+        "after": "dataset\\ex08\\after",
+        "report": "dataset\\ex08\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex09",
+      "smell": "Too Many Props",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex09_smelly",
+      "after_branch": "ex09_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "Request timed out.",
+      "log": "dataset\\ex09\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex09\\before",
+        "after": "dataset\\ex09\\after",
+        "report": "dataset\\ex09\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex10",
+      "smell": "Prop Drilling",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex10_smelly",
+      "after_branch": "ex10_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: corrupt patch at line 23",
+      "log": "dataset\\ex10\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex10\\before",
+        "after": "dataset\\ex10\\after",
+        "report": "dataset\\ex10\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex11",
+      "smell": "Prop Drilling",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex11_smelly",
+      "after_branch": "ex11_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: corrupt patch at line 28",
+      "log": "dataset\\ex11\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex11\\before",
+        "after": "dataset\\ex11\\after",
+        "report": "dataset\\ex11\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex12",
+      "smell": "Prop Drilling",
+      "attempts_used": 0,
+      "patch_mode": "none",
+      "before_branch": "ex12_smelly",
+      "after_branch": "ex12_refactored",
+      "patch_status": "CHECKOUT_BEFORE_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: Your local changes to the following files would be overwritten by checkout:\n\tsrc/layout/Layout.jsx\nPlease commit your changes or stash them before you switch branches.\nAborting",
+      "log": "dataset\\ex12\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex12\\before",
+        "after": "dataset\\ex12\\after",
+        "report": "dataset\\ex12\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex13",
+      "smell": "Inline Logic in Render",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex13_smelly",
+      "after_branch": "ex13_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: corrupt patch at line 18",
+      "log": "dataset\\ex13\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex13\\before",
+        "after": "dataset\\ex13\\after",
+        "report": "dataset\\ex13\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex14",
+      "smell": "Inline Logic in Render",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex14_smelly",
+      "after_branch": "ex14_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: corrupt patch at line 13",
+      "log": "dataset\\ex14\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex14\\before",
+        "after": "dataset\\ex14\\after",
+        "report": "dataset\\ex14\\truth_diff_report.json"
+      }
+    },
+    {
+      "id": "ex15",
+      "smell": "Inline Logic in Render",
+      "attempts_used": 3,
+      "patch_mode": "none",
+      "before_branch": "ex15_smelly",
+      "after_branch": "ex15_refactored",
+      "patch_status": "PATCH_FAILED",
+      "build_status": "SKIPPED",
+      "diff_status": "SKIPPED",
+      "counts": {
+        "added": "",
+        "removed": "",
+        "geometryChanges": "",
+        "styleChanges": "",
+        "orderChanges": ""
+      },
+      "commit_hash": "",
+      "error": "error: patch failed: src/pages/ReportsPage.jsx:10\nerror: src/pages/ReportsPage.jsx: patch does not apply",
+      "log": "dataset\\ex15\\run.log",
+      "artifacts": {
+        "before": "dataset\\ex15\\before",
+        "after": "dataset\\ex15\\after",
+        "report": "dataset\\ex15\\truth_diff_report.json"
+      }
+    }
+  ]
+}

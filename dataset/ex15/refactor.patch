@@ -1,0 +1,12 @@
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -102,7 +102,7 @@
+       <div style={{ display: 'grid', gap: 8 }}>
+         {filtered.map((report) => (
+           <ReportRow key={report.id} report={report} theme={theme} onOpen={() => openReport(report)} />
+-        ))}
++        ))}
+       </div>
+ 
+       {opened && (

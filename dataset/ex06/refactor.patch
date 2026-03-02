@@ -1,0 +1,48 @@
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/CustomersPage.jsx
+index 3a4b5c6..7d8e9f0 100644
+--- a/src/pages/CustomersPage.jsx
++++ b/src/pages/CustomersPage.jsx
+@@ -1,6 +1,7 @@
+ import { useMemo, useState } from 'react'
+ import CustomerList from '../components/CustomerList'
++import SnapshotCard from '../components/SnapshotCard'
+ import Toolbar from '../components/Toolbar'
+ import { CUSTOMERS } from '../data/mockData'
+
+diff --git a/src/pages/HomePage.jsx b/src/pages/HomePage.jsx
+index 1a2b3c4..5d6e7f8 100644
+--- a/src/pages/HomePage.jsx
++++ b/src/pages/HomePage.jsx
+@@ -1,6 +1,7 @@
+ import Toolbar from '../components/Toolbar'
++import SnapshotCard from '../components/SnapshotCard'
+
+ const tips = [
+   { id: 't1', title: 'Search Fast', text: 'Use quick filters to locate records quickly.' },
+diff --git a/src/components/SnapshotCard.jsx b/src/components/SnapshotCard.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/components/SnapshotCard.jsx
+@@ -0,0 +1,23 @@
++import React from 'react'
+
++const SnapshotCard = ({ title, subtitle }) => {
++  const isLight = theme === 'light'
++
++  return (
++    <div
++      style={{
++        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
++        borderRadius: 10,
++        padding: 12,
++        background: isLight ? '#ffffff' : '#2b3541',
++        marginBottom: 12,
++      }}
++    >
++      <strong>{title}</strong>
++      <div style={{ marginTop: 6, opacity: 0.9 }}>{subtitle}</div>
++    </div>
++  )
++}
+
++export default SnapshotCard

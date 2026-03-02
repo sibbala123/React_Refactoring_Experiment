@@ -1,8 +1,53 @@
 {
   "baseUrl": "http://localhost:5173",
   "routes": [
-    { "path": "/", "states": [{ "name": "default", "steps": [] }] },
-    { "path": "/customers", "states": [{ "name": "default", "steps": [] }] },
-    { "path": "/reports", "states": [{ "name": "default", "steps": [] }] }
+    {
+      "path": "/",
+      "states": [
+        { "name": "default", "steps": [] }
+      ]
+    },
+    {
+      "path": "/customers",
+      "states": [
+        { "name": "default", "steps": [] },
+        {
+          "name": "filtered",
+          "steps": [
+            { "type": "typeByPlaceholder", "placeholder": "Search customers...", "text": "a" }
+          ]
+        },
+        {
+          "name": "selected",
+          "steps": [
+            { "type": "clickByRole", "role": "button", "name": "Select" }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/reports",
+      "states": [
+        { "name": "default", "steps": [] },
+        {
+          "name": "help_open",
+          "steps": [
+            { "type": "clickByRole", "role": "button", "name": "Show Help" }
+          ]
+        },
+        {
+          "name": "opened_report",
+          "steps": [
+            { "type": "clickByRole", "role": "button", "name": "Open" }
+          ]
+        },
+        {
+          "name": "pinned_ready",
+          "steps": [
+            { "type": "clickByRole", "role": "button", "name": "Pin Ready" }
+          ]
+        }
+      ]
+    }
   ]
 }

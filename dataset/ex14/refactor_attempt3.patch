@@ -1,0 +1,27 @@
+diff --git a/src/pages/CustomersPage.jsx b/src/pages/CustomersPage.jsx
+--- a/src/pages/CustomersPage.jsx
++++ b/src/pages/CustomersPage.jsx
+@@ -10,7 +10,6 @@ import { CUSTOMERS } from '../data/mockData'
+ 
+ function filterCustomers(customers, query, onlyActive) {
+   const normalizedQuery = query.trim().toLowerCase()
+-  return customers.filter((c) => {
++  return customers.filter(c =>
+     c.name.toLowerCase().includes(normalizedQuery) ||
+     c.region.toLowerCase().includes(normalizedQuery) ||
+     c.tier.toLowerCase().includes(normalizedQuery)
+@@ -18,7 +17,6 @@ function filterCustomers(customers, query, onlyActive) {
+   })
+ }
+ 
+-export default function CustomersPage({ theme, user }) {
++const CustomersPage = ({ theme, user }) => {
+   const isLight = theme === 'light'
+   const [query, setQuery] = useState('')
+   const [onlyActive, setOnlyActive] = useState(false)
+@@ -102,4 +100,5 @@ export default function CustomersPage({ theme, user }) {
+     </section>
+   )
+ }
++
++export default CustomersPage

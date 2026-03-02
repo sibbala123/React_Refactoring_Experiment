@@ -1,0 +1,48 @@
+BEGIN_UNIFIED_DIFF
+diff --git a/src/components/ReportRows.jsx b/src/components/ReportRows.jsx
+--- a/src/components/ReportRows.jsx
++++ b/src/components/ReportRows.jsx
+@@ -1,7 +1,6 @@
+ import ReportRow from './ReportRow'
+ 
+ function ReportRowsBody({ reports, onOpen }) {
+-  return (
+-    <>
+-      {reports.map((report) => (
+-        <ReportRow key={report.id} report={report} onOpen={onOpen} />
+-      ))}
+-    </>
++  return reports.map((report) => <ReportRow key={report.id} report={report} onOpen={onOpen} />);
+ }
+ 
+ export default function ReportRows({ reports, onOpen }) {
+   return <ReportRowsBody reports={reports} onOpen={onOpen} />;
+ }
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -1,7 +1,6 @@
+ import { useEffect, useMemo, useState } from 'react'
+ import ReportRows from '../components/ReportRows'
+ import Toolbar from '../components/Toolbar'
+-import { REPORTS } from '../data/mockData'
+ 
+ function filterReports(reports, query, status) {
+   const normalizedQuery = query.trim().toLowerCase()
+@@ -104,7 +103,6 @@ export default function ReportsPage({ theme, user }) {
+       <div style={{ display: 'grid', gap: 8 }}>
+         <ReportRows reports={filtered} onOpen={openReport} />
+       </div>
+-
+       {opened && (
+         <div
+           style={{
+@@ -120,7 +118,6 @@ export default function ReportsPage({ theme, user }) {
+             Close
+           </button>
+         </div>
+-      )}
+     </section>
+   )
+ }
+END_UNIFIED_DIFF

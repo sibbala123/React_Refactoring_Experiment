@@ -1,0 +1,34 @@
+BEGIN_UNIFIED_DIFF
+diff --git a/src/components/NavItemShell.jsx b/src/components/NavItemShell.jsx
+--- a/src/components/NavItemShell.jsx
++++ b/src/components/NavItemShell.jsx
+@@ -1,5 +1,4 @@
+ import NavItem from './NavItem'
+ 
+-export default function NavItemShell({ to, label, currentPath, theme, user }) {
++export default function NavItemShell({ to, label, currentPath }) {
+   return <NavItem to={to} label={label} currentPath={currentPath} />
+ }
+diff --git a/src/components/NavList.jsx b/src/components/NavList.jsx
+--- a/src/components/NavList.jsx
++++ b/src/components/NavList.jsx
+@@ -1,5 +1,4 @@
+ import NavItemShell from './NavItemShell'
+ 
+-const items = [
+-  { to: '/', label: 'Home' },
+-  { to: '/customers', label: 'Customers' },
+-  { to: '/reports', label: 'Reports' },
+-]
+-
+-export default function NavList({ theme, user, currentPath }) {
++export default function NavList({ currentPath }) {
+   return (
+     <nav style={{ display: 'grid', gap: 8 }}>
+       {items.map((item) => (
+         <NavItemShell key={item.to} to={item.to} label={item.label} currentPath={currentPath} />
+       ))}
+     </nav>
+   )
+ }
+END_UNIFIED_DIFF

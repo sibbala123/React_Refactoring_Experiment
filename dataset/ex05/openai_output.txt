@@ -1,0 +1,65 @@
+BEGIN_UNIFIED_DIFF
+diff --git a/src/components/CustomerCard.jsx b/src/components/CustomerCard.jsx
+--- a/src/components/CustomerCard.jsx
++++ b/src/components/CustomerCard.jsx
+@@ -1,6 +1,7 @@
+ import React from 'react';
++import { formatCurrency } from '../utils/formatters';
+
+ function localFormatCurrency(n) {
+   return new Intl.NumberFormat('en-US', {
+     style: 'currency',
+     currency: 'USD',
+     maximumFractionDigits: 0,
+@@ -42,7 +43,7 @@ export default function CustomerCard({
+       <div style={{ marginTop: 6, fontSize: 14 }}>
+         {showTier && <div>Tier: {tier}</div>}
+         {showRegion && <div>Region: {region}</div>}
+-        {showSpend && <div>Spend: {localFormatCurrency(spend)}</div>}
++        {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
+         <div>Toggled: {isToggled ? 'On' : 'Off'}</div>
+       </div>
+
+diff --git a/src/components/ReportRow.jsx b/src/components/ReportRow.jsx
+--- a/src/components/ReportRow.jsx
++++ b/src/components/ReportRow.jsx
+@@ -1,6 +1,7 @@
+ import React from 'react';
++import { getBadgeColor } from '../utils/formatters';
+
+ function localBadgeColor(status) {
+   if (status === 'Ready') return '#1d8348'
+   if (status === 'Draft') return '#af601a'
+   if (status === 'Blocked') return '#b03a2e'
+@@ -45,7 +46,7 @@ export default function ReportRow({ report, theme, onOpen }) {
+       <div style={{ fontSize: 14, opacity: 0.85 }}>Owner: {report.owner}</div>
+       <div style={{ fontSize: 14, color: localBadgeColor(report.status) }}>{report.status}</div>
+     </div>
+-    <button onClick={() => onOpen(report)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
++    <button onClick={() => onOpen(report)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+       Open
+     </button>
+   </div>
+
+diff --git a/src/utils/formatters.jsx b/src/utils/formatters.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/utils/formatters.jsx
+@@ -0,0 +1,28 @@
++import React from 'react';
+
++export function formatCurrency(n) {
++  return new Intl.NumberFormat('en-US', {
++    style: 'currency',
++    currency: 'USD',
++    maximumFractionDigits: 0,
++  }).format(n);
++}
+
++export function getBadgeColor(status) {
++  if (status === 'Ready') return '#1d8348'
++  if (status === 'Draft') return '#af601a'
++  if (status === 'Blocked') return '#b03a2e'
++  return '#4d5656';
++}
+END_UNIFIED_DIFF

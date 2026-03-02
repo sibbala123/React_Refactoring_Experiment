@@ -1,0 +1,79 @@
+BEGIN_UNIFIED_DIFF
+diff --git a/src/pages/ReportsPage.jsx b/src/pages/ReportsPage.jsx
+--- a/src/pages/ReportsPage.jsx
++++ b/src/pages/ReportsPage.jsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useMemo, useState } from 'react'
++import AuditPanel from '../components/AuditPanel'
+ import ReportRow from '../components/ReportRow'
+ import Toolbar from '../components/Toolbar'
+ import { REPORTS } from '../data/mockData'
+@@ -207,6 +208,7 @@ export default function ReportsPage({ theme, user }) {
+       <div
+         style={{
+           marginBottom: 12,
++          display: showAudit ? 'block' : 'none',
+           border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+           borderRadius: 10,
+           padding: 12,
+@@ -237,6 +239,7 @@ export default function ReportsPage({ theme, user }) {
+       <div
+         style={{
+           marginBottom: 12,
++          display: showHelp ? 'block' : 'none',
+           border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
+           borderRadius: 10,
+           padding: 12,
+@@ -267,6 +270,7 @@ export default function ReportsPage({ theme, user }) {
+       <div
+         style={{
+           marginBottom: 12,
++          display: pinReady ? 'block' : 'none',
+           border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
+           borderRadius: 10,
+           padding: 12,
+@@ -304,6 +308,7 @@ export default function ReportsPage({ theme, user }) {
+       <div style={{ display: 'grid', gap: 8 }}>
+         {filtered.map((report) => (
+           <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
++        ))}
+       </div>
+ 
+       {opened && (
+         <div
+           style={{
+             marginTop: 12,
++            display: opened ? 'block' : 'none',
+             border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+             borderRadius: 10,
+             padding: 12,
+@@ -337,6 +342,7 @@ export default function ReportsPage({ theme, user }) {
+       </div>
+     </section>
+   )
++}
++
++function AuditPanel({ REPORTS, localNote, setLocalNote }) {
++  return (
++    <div
++      style={{
++        marginBottom: 12,
++        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
++        borderRadius: 10,
++        padding: 12,
++        background: isLight ? '#ffffff' : '#2b3541',
++      }}
++    >
++      <strong>Audit Panel:</strong> Ready reports {REPORTS.filter((r) => r.status === 'Ready').length}, drafts {REPORTS.filter((r) => r.status === 'Draft').length}.
++      <div style={{ marginTop: 8 }}>
++        <input
++          value={localNote}
++          onChange={(e) => setLocalNote(e.target.value)}
++          placeholder='Local note...'
++          style={{ padding: 8, minWidth: 220, borderRadius: 8, border: '1px solid #99a6b3' }}
++        />
++      </div>
++    </div>
++  )
+ }
+END_UNIFIED_DIFF
