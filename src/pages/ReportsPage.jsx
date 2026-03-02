@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import ReportRow from '../components/ReportRow'
+import ReportRows from '../components/ReportRows'
 import Toolbar from '../components/Toolbar'
 import { REPORTS } from '../data/mockData'
 import { badgeColor } from '../utils/format'
@@ -155,9 +155,7 @@ export default function ReportsPage({ theme, user }) {
       )}
 
       <div style={{ display: 'grid', gap: 8 }}>
-        {filtered.map((report) => (
-          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
-        ))}
+        <ReportRows reports={filtered} theme={theme} onOpen={openReport} />
       </div>
 
       {opened && (
