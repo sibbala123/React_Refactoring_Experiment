@@ -1,4 +1,4 @@
-import NavItem from './NavItem'
+import NavItemShell from './NavItemShell'
 
 const items = [
   { to: '/', label: 'Home' },
@@ -10,7 +10,7 @@ export default function NavList({ theme, user, currentPath }) {
   return (
     <nav style={{ display: 'grid', gap: 8 }}>
       {items.map((item) => (
-        <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
+        <NavItemShell key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
       ))}
     </nav>
   )
