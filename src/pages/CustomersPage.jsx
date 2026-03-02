@@ -88,6 +88,12 @@ export default function CustomersPage({ theme, user }) {
         onHover={(name) => console.log('Hover customer', name)}
         onToggle={handleToggleFlag}
         onAlertName={(name) => window.alert(name)}
+        showStatusLabel={true}
+        allowAlertButton={true}
+        allowToggleButton={true}
+        borderStyleMode="solid"
+        emphasisLevel={2}
+        onFocusCard={(id) => console.log('Focus customer', id)}
       />
     </section>
   )

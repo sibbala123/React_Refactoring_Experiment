@@ -14,6 +14,12 @@ export default function CustomerList({
   onHover,
   onToggle,
   onAlertName,
+  showStatusLabel,
+  allowAlertButton,
+  allowToggleButton,
+  borderStyleMode,
+  emphasisLevel,
+  onFocusCard,
 }) {
   return (
     <div style={{ display: 'grid', gap: 10 }}>
@@ -38,6 +44,12 @@ export default function CustomerList({
           onHover={onHover}
           onToggle={onToggle}
           onAlertName={onAlertName}
+          showStatusLabel={showStatusLabel}
+          allowAlertButton={allowAlertButton}
+          allowToggleButton={allowToggleButton}
+          borderStyleMode={borderStyleMode}
+          emphasisLevel={emphasisLevel}
+          onFocusCard={onFocusCard}
         />
       ))}
     </div>
