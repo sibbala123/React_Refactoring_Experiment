@@ -10,9 +10,9 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
     { to: '/reports', label: 'Reports' },
   ]
   const quickStats = [
-    "Route: ",
-    "Role: ",
-    "Theme: ",
+    `Route: ${location.pathname}`,
+    `Role: ${user.role}`,
+    `Theme: ${theme}`,
   ]
 
   return (
@@ -30,7 +30,7 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
         style={{
           width: 220,
           padding: 14,
-          borderRight: 1px solid ,
+          borderRight: `1px solid ${isLight ? '#c8d1db' : '#3b4958'}`,
           background: isLight ? '#fdfefe' : '#25303a',
         }}
       >
@@ -42,7 +42,7 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
               to={item.to}
               style={{
                 textDecoration: 'none',
-                border: 1px solid ,
+                border: `1px solid ${location.pathname === item.to ? '#3d87db' : isLight ? '#c8d1db' : '#48586a'}`,
                 borderRadius: 8,
                 padding: '8px 10px',
                 background: location.pathname === item.to ? (isLight ? '#e8f2ff' : '#2f4b67') : isLight ? '#ffffff' : '#2b3541',
@@ -53,7 +53,7 @@ export default function Layout({ children, theme, user, onToggleTheme }) {
             </Link>
           ))}
         </div>
-        <div style={{ border: 1px solid , borderRadius: 8, padding: 10 }}>
+        <div style={{ border: `1px solid ${isLight ? '#c8d1db' : '#48586a'}`, borderRadius: 8, padding: 10 }}>
           {quickStats.map((s) => (
             <div key={s} style={{ marginBottom: 6 }}>{s}</div>
           ))}
