@@ -1,8 +1,13 @@
 import { formatCurrency } from '../utils/format'
 
-export function ActionButton({ onClick, children, padding = '4px 8px' }) {
+const baseButtonStyle = {
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+export function ActionButton({ onClick, children, style }) {
   return (
-    <button onClick={onClick} style={{ padding, borderRadius: 8, border: '1px solid #99a6b3' }}>
+    <button onClick={onClick} style={{ ...baseButtonStyle, ...style }}>
       {children}
     </button>
   )
@@ -54,9 +59,15 @@ export default function CustomerCard({
       </div>
 
       <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        <ActionButton onClick={() => onSelect({ id, name, tier, region, spend, active })}>Select</ActionButton>
-        <ActionButton onClick={() => onToggle(id)}>Toggle</ActionButton>
-        <ActionButton onClick={() => onAlertName(name)}>Alert Name</ActionButton>
+        <ActionButton onClick={() => onSelect({ id, name, tier, region, spend, active })} style={{ padding: '4px 8px' }}>
+          Select
+        </ActionButton>
+        <ActionButton onClick={() => onToggle(id)} style={{ padding: '4px 8px' }}>
+          Toggle
+        </ActionButton>
+        <ActionButton onClick={() => onAlertName(name)} style={{ padding: '4px 8px' }}>
+          Alert Name
+        </ActionButton>
       </div>
     </article>
   )

@@ -22,7 +22,7 @@ export default function ReportRow({ report, theme, onOpen }) {
         <div style={{ fontSize: 14, opacity: 0.85 }}>Owner: {report.owner}</div>
         <div style={{ fontSize: 14, color: badgeColor(report.status) }}>{report.status}</div>
       </div>
-      <ActionButton onClick={() => onOpen(report)} padding="6px 10px">
+      <ActionButton onClick={() => onOpen(report)} style={{ padding: '6px 10px' }}>
         Open
       </ActionButton>
     </div>
