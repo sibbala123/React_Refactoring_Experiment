@@ -5,12 +5,62 @@ import {
   FIXED_ENV,
   ensureDir,
   getCliArg,
-  installMotionReset,
   outputFileName,
   readRoutesConfig,
   resolveOutputDir,
-  runConfiguredSteps,
 } from '../truth/helpers.js'
+
+const MOTION_RESET_CSS = `
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+`
+
+function normalizeStep(step) {
+  if (!step || typeof step !== 'object') {
+    throw new Error(`Invalid step: ${JSON.stringify(step)}`)
+  }
+  if (step.type) return step
+  for (const type of ['clickByRole', 'typeByPlaceholder', 'selectByLabelOrRole', 'waitForText']) {
+    if (step[type]) return { type, ...step[type] }
+  }
+  throw new Error(`Unsupported step shape: ${JSON.stringify(step)}`)
+}
+
+async function runStep(page, rawStep) {
+  const step = normalizeStep(rawStep)
+  if (step.type === 'clickByRole') {
+    await page.getByRole(step.role, { name: step.name }).click()
+    return
+  }
+  if (step.type === 'typeByPlaceholder') {
+    await page.getByPlaceholder(step.placeholder).fill(step.text ?? '')
+    return
+  }
+  if (step.type === 'selectByLabelOrRole') {
+    if (step.role) {
+      await page.getByRole(step.role, { name: step.name }).selectOption(step.value)
+      return
+    }
+    await page.getByLabel(step.name).selectOption(step.value)
+    return
+  }
+  if (step.type === 'waitForText') {
+    await page.getByText(step.text).first().waitFor({ state: 'visible' })
+    return
+  }
+  throw new Error(`Unsupported step type: ${step.type}`)
+}
+
+async function runConfiguredSteps(page, steps) {
+  for (const step of steps) {
+    await runStep(page, step)
+  }
+}
 
 function screenFileName(routePath, stateName) {
   return outputFileName(routePath, stateName).replace(/^truth__/, 'screen__').replace(/\.json$/, '.png')
@@ -28,7 +78,6 @@ export async function runScreenCapture(outDirArg = 'screens') {
     deviceScaleFactor: FIXED_ENV.deviceScaleFactor,
     reducedMotion: 'reduce',
   })
-  await installMotionReset(context)
 
   const generated = []
   try {
@@ -37,6 +86,7 @@ export async function runScreenCapture(outDirArg = 'screens') {
       for (const state of states) {
         const page = await context.newPage()
         await page.goto(`${baseUrl}${route.path}`, { waitUntil: 'networkidle' })
+        await page.addStyleTag({ content: MOTION_RESET_CSS })
         await runConfiguredSteps(page, Array.isArray(state.steps) ? state.steps : [])
 
         const fileName = screenFileName(route.path, state.name)
