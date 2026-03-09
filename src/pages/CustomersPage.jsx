@@ -28,43 +28,46 @@ export default function CustomersPage({ theme, user }) {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
   }
 
+  const panelStyle = {
+    border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: isLight ? '#ffffff' : '#2b3541',
+    marginBottom: 12,
+  }
+
+  const filterBarStyle = {
+    ...panelStyle,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  }
+
+  const activeLabel = onlyActive ? 'Active' : 'All'
+  const selectedLabel = selected ? `${selected.name} (${selected.tier}, ${selected.region})` : ''
+  const selectedCustomerId = selected?.id ?? null
+
   return (
     <section>
       <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
+      <div style={filterBarStyle}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search customers..."
           style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
         />
-        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          Showing: {onlyActive ? 'Active' : 'All'}
+        <button
+          onClick={() => setOnlyActive((prev) => !prev)}
+          style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}
+        >
+          Showing: {activeLabel}
         </button>
       </div>
 
       {selected && (
-        <div
-          style={{
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-            marginBottom: 12,
-          }}
-        >
-          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+        <div style={panelStyle}>
+          <strong>Selected:</strong> {selectedLabel}
           <button
             onClick={() => setSelected(null)}
             style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
@@ -74,30 +77,6 @@ export default function CustomersPage({ theme, user }) {
         </div>
       )}
 
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-        }}
-      >
-        {results.length === 0
-          ? query
-            ? 'No customers for this query.'
-            : onlyActive
-              ? 'No active customers.'
-              : 'No customers.'
-          : results.length > 3
-            ? onlyActive
-              ? 'Many active customers shown.'
-              : 'Many customers shown.'
-            : selected
-              ? `Selected and ${results.length} in view.`
-              : `Showing ${results.length} customers.`}
-      </div>
-
       <CustomerList
         customers={results}
         showSpend={true}
@@ -106,7 +85,7 @@ export default function CustomersPage({ theme, user }) {
         highlightIfGold={true}
         isCompact={false}
         theme={theme}
-        selectedCustomerId={selected?.id ?? null}
+        selectedCustomerId={selectedCustomerId}
         toggledMap={toggled}
         onSelect={setSelected}
         onHover={(name) => console.log('Hover customer', name)}
