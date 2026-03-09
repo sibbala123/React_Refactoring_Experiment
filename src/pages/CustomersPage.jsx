@@ -15,19 +15,63 @@ function filterCustomers(customers, query, onlyActive) {
   })
 }
 
+function FiltersPanel({ isLight, query, onQueryChange, onlyActive, onToggleActive }) {
+  return (
+    <div
+      style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
+        marginBottom: 12,
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8,
+      }}
+    >
+      <input
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        placeholder="Search customers..."
+        style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+      />
+      <button onClick={onToggleActive} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+        Showing: {onlyActive ? 'Active' : 'All'}
+      </button>
+    </div>
+  )
+}
+
+function SelectedCustomerPanel({ selected, isLight, onClear }) {
+  return (
+    <div
+      style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
+        marginBottom: 12,
+      }}
+    >
+      <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+      <button
+        onClick={onClear}
+        style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+      >
+        Clear
+      </button>
+    </div>
+  )
+}
+
 export default function CustomersPage({ theme, user }) {
   const isLight = theme === 'light'
   const [query, setQuery] = useState('')
   const [onlyActive, setOnlyActive] = useState(false)
   const [selected, setSelected] = useState(null)
   const [toggled, setToggled] = useState({})
-  const [showSummary, setShowSummary] = useState(true)
-  const [showRegionStats, setShowRegionStats] = useState(false)
-  const [note, setNote] = useState('')
 
   const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
-  const activeCount = results.filter((c) => c.active).length
-  const goldCount = results.filter((c) => c.tier === 'Gold').length
 
   const handleToggleFlag = (customerId) => {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
@@ -36,77 +80,15 @@ export default function CustomersPage({ theme, user }) {
   return (
     <section>
       <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search customers..."
-          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
-        />
-        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          Showing: {onlyActive ? 'Active' : 'All'}
-        </button>
-        <button onClick={() => setShowSummary((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {showSummary ? 'Hide Summary' : 'Show Summary'}
-        </button>
-        <button onClick={() => setShowRegionStats((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {showRegionStats ? 'Hide Region Stats' : 'Show Region Stats'}
-        </button>
-      </div>
+      <FiltersPanel
+        isLight={isLight}
+        query={query}
+        onQueryChange={setQuery}
+        onlyActive={onlyActive}
+        onToggleActive={() => setOnlyActive((prev) => !prev)}
+      />
 
-      {showSummary && (
-        <div
-          style={{
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-            marginBottom: 12,
-          }}
-        >
-          <strong>Inline Summary:</strong> Active {activeCount}, Gold {goldCount}, Results {results.length}
-          <div style={{ marginTop: 8 }}>
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder='Team note...' style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }} />
-          </div>
-        </div>
-      )}
-
-      {showRegionStats && (
-        <div style={{ border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`, borderRadius: 10, padding: 12, background: isLight ? '#ffffff' : '#2b3541', marginBottom: 12 }}>
-          West: {results.filter((c) => c.region === 'West').length} | South: {results.filter((c) => c.region === 'South').length} | Midwest: {results.filter((c) => c.region === 'Midwest').length}
-        </div>
-      )}
-
-      {selected && (
-        <div
-          style={{
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-            marginBottom: 12,
-          }}
-        >
-          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
-          <button
-            onClick={() => setSelected(null)}
-            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
-          >
-            Clear
-          </button>
-        </div>
-      )}
+      {selected && <SelectedCustomerPanel selected={selected} isLight={isLight} onClear={() => setSelected(null)} />}
 
       <CustomerList
         customers={results}
@@ -126,4 +108,3 @@ export default function CustomersPage({ theme, user }) {
     </section>
   )
 }
-
