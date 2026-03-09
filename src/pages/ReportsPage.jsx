@@ -47,107 +47,110 @@ export default function ReportsPage({ theme, user }) {
 
   const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === 'Ready') : []
 
+  const panelBorderColor = isLight ? '#c8d1db' : '#4b5b6d'
+  const panelBackground = isLight ? '#ffffff' : '#2b3541'
+  const searchPanelStyle = {
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+    marginBottom: 12,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  }
+  const fieldStyle = { padding: 8, borderRadius: 8, border: '1px solid #99a6b3' }
+  const inputStyle = { ...fieldStyle, minWidth: 220 }
+  const actionButtonStyle = { padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }
+  const toastStyle = {
+    marginBottom: 12,
+    border: `1px solid ${isLight ? '#98b6d6' : '#5d83a9'}`,
+    borderRadius: 10,
+    padding: 10,
+    background: isLight ? '#eaf3ff' : '#2f4b67',
+  }
+  const helpStyle = {
+    marginBottom: 12,
+    border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+  }
+  const statusStyle = {
+    marginBottom: 12,
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+    display: 'flex',
+    gap: 8,
+    flexWrap: 'wrap',
+  }
+  const pinnedStyle = {
+    marginBottom: 12,
+    border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: isLight ? '#f2fff3' : '#2f4533',
+  }
+  const pinnedRowStyle = { padding: '6px 0', borderBottom: '1px solid rgba(120,120,120,0.25)' }
+  const openedStyle = {
+    marginTop: 12,
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+  }
+  const showHelpLabel = showHelp ? 'Hide Help' : 'Show Help'
+  const pinReadyLabel = pinReady ? 'Unpin Ready' : 'Pin Ready'
+
   return (
     <section>
       <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />
 
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
+      <div style={searchPanelStyle}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search reports..."
-          style={{ padding: 8, minWidth: 220, borderRadius: 8, border: '1px solid #99a6b3' }}
+          style={inputStyle}
         />
 
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          style={{ padding: 8, borderRadius: 8, border: '1px solid #99a6b3' }}
-        >
+        <select value={status} onChange={(e) => setStatus(e.target.value)} style={fieldStyle}>
           <option>All</option>
           <option>Ready</option>
           <option>Draft</option>
           <option>Blocked</option>
         </select>
 
-        <button onClick={() => setShowHelp((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {showHelp ? 'Hide Help' : 'Show Help'}
+        <button onClick={() => setShowHelp((prev) => !prev)} style={actionButtonStyle}>
+          {showHelpLabel}
         </button>
 
-        <button onClick={() => setPinReady((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {pinReady ? 'Unpin Ready' : 'Pin Ready'}
+        <button onClick={() => setPinReady((prev) => !prev)} style={actionButtonStyle}>
+          {pinReadyLabel}
         </button>
       </div>
 
-      {toast && (
-        <div
-          style={{
-            marginBottom: 12,
-            border: `1px solid ${isLight ? '#98b6d6' : '#5d83a9'}`,
-            borderRadius: 10,
-            padding: 10,
-            background: isLight ? '#eaf3ff' : '#2f4b67',
-          }}
-        >
-          {toast}
-        </div>
-      )}
+      {toast && <div style={toastStyle}>{toast}</div>}
 
       {showHelp && (
-        <div
-          style={{
-            marginBottom: 12,
-            border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-          }}
-        >
+        <div style={helpStyle}>
           <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).
         </div>
       )}
 
-      <div
-        style={{
-          marginBottom: 12,
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          display: 'flex',
-          gap: 8,
-          flexWrap: 'wrap',
-        }}
-      >
-        <span style={{ color: badgeColor('Ready') }}>Ready: {REPORTS.filter((r) => r.status === 'Ready').length}</span>
-        <span style={{ color: badgeColor('Draft') }}>Draft: {REPORTS.filter((r) => r.status === 'Draft').length}</span>
-        <span style={{ color: badgeColor('Blocked') }}>Blocked: {REPORTS.filter((r) => r.status === 'Blocked').length}</span>
+      <div style={statusStyle}>
+        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
       </div>
 
       {pinReady && (
-        <div
-          style={{
-            marginBottom: 12,
-            border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#f2fff3' : '#2f4533',
-          }}
-        >
+        <div style={pinnedStyle}>
           <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
           {pinnedReadyReports.map((report) => (
-            <div key={report.id} style={{ padding: '6px 0', borderBottom: '1px solid rgba(120,120,120,0.25)' }}>
+            <div key={report.id} style={pinnedRowStyle}>
               {report.title} - {report.owner}
             </div>
           ))}
@@ -155,29 +158,13 @@ export default function ReportsPage({ theme, user }) {
       )}
 
       <div style={{ display: 'grid', gap: 8 }}>
-        {REPORTS.filter((report) => {
-          const normalizedQuery = query.trim().toLowerCase()
-          const matchesQuery =
-            report.title.toLowerCase().includes(normalizedQuery) ||
-            report.owner.toLowerCase().includes(normalizedQuery) ||
-            report.status.toLowerCase().includes(normalizedQuery)
-          const matchesStatus = status === 'All' ? true : report.status === status
-          return matchesQuery && matchesStatus
-        }).map((report) => (
+        {filtered.map((report) => (
           <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
         ))}
       </div>
 
       {opened && (
-        <div
-          style={{
-            marginTop: 12,
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-          }}
-        >
+        <div style={openedStyle}>
           <h3 style={{ marginTop: 0 }}>Open Report</h3>
           <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
           <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
