@@ -28,6 +28,27 @@ export default function CustomersPage({ theme, user }) {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
   }
 
+  const listDisplay = {
+    showSpend: true,
+    showRegion: true,
+    showTier: true,
+    highlightIfGold: true,
+    isCompact: false,
+    theme,
+  }
+
+  const listSelection = {
+    selectedCustomerId: selected?.id ?? null,
+    toggledMap: toggled,
+  }
+
+  const listHandlers = {
+    onSelect: setSelected,
+    onHover: (name) => console.log('Hover customer', name),
+    onToggle: handleToggleFlag,
+    onAlertName: (name) => window.alert(name),
+  }
+
   return (
     <section>
       <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
@@ -74,27 +95,7 @@ export default function CustomersPage({ theme, user }) {
         </div>
       )}
 
-      <CustomerList
-        customers={results}
-        showSpend={true}
-        showRegion={true}
-        showTier={true}
-        highlightIfGold={true}
-        isCompact={false}
-        theme={theme}
-        selectedCustomerId={selected?.id ?? null}
-        toggledMap={toggled}
-        onSelect={setSelected}
-        onHover={(name) => console.log('Hover customer', name)}
-        onToggle={handleToggleFlag}
-        onAlertName={(name) => window.alert(name)}
-        showStatusLabel={true}
-        allowAlertButton={true}
-        allowToggleButton={true}
-        borderStyleMode="solid"
-        emphasisLevel={2}
-        onFocusCard={(id) => console.log('Focus customer', id)}
-      />
+      <CustomerList customers={results} display={listDisplay} selection={listSelection} handlers={listHandlers} />
     </section>
   )
 }

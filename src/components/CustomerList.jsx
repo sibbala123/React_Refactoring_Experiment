@@ -1,55 +1,20 @@
 import CustomerCard from './CustomerCard'
 
-export default function CustomerList({
-  customers,
-  showSpend,
-  showRegion,
-  showTier,
-  highlightIfGold,
-  isCompact,
-  theme,
-  selectedCustomerId,
-  toggledMap,
-  onSelect,
-  onHover,
-  onToggle,
-  onAlertName,
-  showStatusLabel,
-  allowAlertButton,
-  allowToggleButton,
-  borderStyleMode,
-  emphasisLevel,
-  onFocusCard,
-}) {
+export default function CustomerList({ customers, display, selection, handlers }) {
+  const { selectedCustomerId, toggledMap } = selection
+
   return (
     <div style={{ display: 'grid', gap: 10 }}>
       {customers.map((customer) => (
         <CustomerCard
           key={customer.id}
-          id={customer.id}
-          name={customer.name}
-          tier={customer.tier}
-          region={customer.region}
-          spend={customer.spend}
-          active={customer.active}
-          showSpend={showSpend}
-          showRegion={showRegion}
-          showTier={showTier}
-          highlightIfGold={highlightIfGold}
-          isCompact={isCompact}
-          theme={theme}
-          selected={selectedCustomerId === customer.id}
-          isToggled={!!toggledMap[customer.id]}
-          onSelect={onSelect}
-          onHover={onHover}
-          onToggle={onToggle}
-          onAlertName={onAlertName}
-          showStatusLabel={showStatusLabel}
-          allowAlertButton={allowAlertButton}
-          allowToggleButton={allowToggleButton}
-          borderStyleMode={borderStyleMode}
-          emphasisLevel={emphasisLevel}
-          onFocusCard={onFocusCard}
+          customer={customer}
+          display={display}
+          state={{
+            selected: selectedCustomerId === customer.id,
+            isToggled: !!toggledMap[customer.id],
+          }}
+          handlers={handlers}
         />
       ))}
     </div>

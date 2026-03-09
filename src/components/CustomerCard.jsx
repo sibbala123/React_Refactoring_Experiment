@@ -1,41 +1,32 @@
 import { formatCurrency } from '../utils/format'
 
-export default function CustomerCard({
-  id,
-  name,
-  tier,
-  region,
-  spend,
-  active,
-  showSpend,
-  showRegion,
-  showTier,
-  highlightIfGold,
-  isCompact,
-  theme,
-  selected,
-  isToggled,
-  onSelect,
-  onHover,
-  onToggle,
-  onAlertName,
-  showStatusLabel,
-  allowAlertButton,
-  allowToggleButton,
-  borderStyleMode,
-  emphasisLevel,
-  onFocusCard,
-}) {
+const baseButtonStyle = {
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+export function ActionButton({ onClick, children, style }) {
+  return (
+    <button onClick={onClick} style={{ ...baseButtonStyle, ...style }}>
+      {children}
+    </button>
+  )
+}
+
+export default function CustomerCard({ customer, display, state, handlers }) {
+  const { id, name, tier, region, spend, active } = customer
+  const { showSpend, showRegion, showTier, highlightIfGold, isCompact, theme } = display
+  const { selected, isToggled } = state
+  const { onSelect, onHover, onToggle, onAlertName } = handlers
   const isLight = theme === 'light'
   const shouldHighlight = highlightIfGold && tier === 'Gold'
-  const borderTone = selected ? '#3d87db' : isLight ? '#c8d1db' : '#4b5b6d'
+  const selectionPayload = { id, name, tier, region, spend, active }
 
   return (
     <article
       onMouseEnter={() => onHover(name)}
-      onFocus={() => onFocusCard(id)}
       style={{
-        border: borderStyleMode === 'dashed' ? `1px dashed ${borderTone}` : `1px solid ${borderTone}`,
+        border: `1px solid ${selected ? '#3d87db' : isLight ? '#c8d1db' : '#4b5b6d'}`,
         borderRadius: 10,
         padding: isCompact ? 8 : 12,
         background: shouldHighlight ? (isLight ? '#fff8dd' : '#534a26') : isLight ? '#ffffff' : '#2b3541',
@@ -43,10 +34,10 @@ export default function CustomerCard({
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
         <strong>{name}</strong>
-        <span>{showStatusLabel ? (active ? 'Active' : 'Inactive') : ''}</span>
+        <span>{active ? 'Active' : 'Inactive'}</span>
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 14, opacity: emphasisLevel > 1 ? 1 : 0.9 }}>
+      <div style={{ marginTop: 6, fontSize: 14 }}>
         {showTier && <div>Tier: {tier}</div>}
         {showRegion && <div>Region: {region}</div>}
         {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
@@ -54,19 +45,15 @@ export default function CustomerCard({
       </div>
 
       <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        <button onClick={() => onSelect({ id, name, tier, region, spend, active })} style={{ padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+        <ActionButton onClick={() => onSelect(selectionPayload)} style={{ padding: '4px 8px' }}>
           Select
-        </button>
-        {allowToggleButton && (
-          <button onClick={() => onToggle(id)} style={{ padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-            Toggle
-          </button>
-        )}
-        {allowAlertButton && (
-          <button onClick={() => onAlertName(name)} style={{ padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-            Alert Name
-          </button>
-        )}
+        </ActionButton>
+        <ActionButton onClick={() => onToggle(id)} style={{ padding: '4px 8px' }}>
+          Toggle
+        </ActionButton>
+        <ActionButton onClick={() => onAlertName(name)} style={{ padding: '4px 8px' }}>
+          Alert Name
+        </ActionButton>
       </div>
     </article>
   )
