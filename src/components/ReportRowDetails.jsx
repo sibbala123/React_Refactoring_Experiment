@@ -1,52 +1,99 @@
+import { badgeColor } from '../utils/format'
+
+const DEFAULT_LABELS = {
+  title: 'Title',
+  owner: 'Owner',
+  status: 'Status',
+  updated: 'Updated',
+}
+
+const DEFAULT_LINE_STYLE = { margin: '4px 0' }
+const DEFAULT_BUTTON_STYLE = { padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }
+
 export default function ReportRowDetails({
+  details,
+  report,
+  ui,
+  actions,
   title,
   owner,
   status,
   updatedDaysAgo,
-  theme,
-  isOpen,
-  showOwner,
-  showStatus,
-  showUpdated,
-  compact,
-  pinReady,
-  toast,
-  counter,
+  labelTitle,
+  labelOwner,
+  labelStatus,
+  labelUpdated,
+  statusColor,
+  colorStatus,
   onClose,
-  onPinToggle,
-  onEcho,
+  closeLabel = 'Close',
+  showClose,
+  lineStyle,
+  buttonStyle,
 }) {
-  const isLight = theme === 'light'
-  if (!isOpen) return null
+  const resolvedDetails = details ?? {}
+  const resolvedReport = {
+    title: report?.title ?? resolvedDetails.report?.title ?? title,
+    owner: report?.owner ?? resolvedDetails.report?.owner ?? owner,
+    status: report?.status ?? resolvedDetails.report?.status ?? status,
+    updatedDaysAgo: report?.updatedDaysAgo ?? resolvedDetails.report?.updatedDaysAgo ?? updatedDaysAgo,
+  }
+
+  const hasReport =
+    report != null ||
+    resolvedDetails.report != null ||
+    title != null ||
+    owner != null ||
+    status != null ||
+    updatedDaysAgo != null
+
+  if (!hasReport) {
+    return null
+  }
+
+  const resolvedUi = ui ?? resolvedDetails.ui ?? {}
+  const resolvedActions = actions ?? resolvedDetails.actions ?? {}
+  const resolvedLabels = resolvedUi.labels ?? resolvedDetails.labels ?? {}
+
+  const resolvedStatusColor = resolvedUi.statusColor ?? resolvedDetails.statusColor ?? statusColor
+  const resolvedColorStatus = resolvedUi.colorStatus ?? resolvedDetails.colorStatus ?? colorStatus
+  const shouldColorStatus = resolvedColorStatus ?? (resolvedStatusColor !== undefined && resolvedStatusColor !== null)
+  const statusStyle = shouldColorStatus ? { color: resolvedStatusColor ?? badgeColor(resolvedReport.status) } : null
+
+  const resolvedLineStyle = resolvedUi.lineStyle ?? lineStyle ?? DEFAULT_LINE_STYLE
+  const resolvedButtonStyle = resolvedUi.buttonStyle ?? buttonStyle ?? DEFAULT_BUTTON_STYLE
+
+  const resolvedCloseLabel = resolvedActions.closeLabel ?? resolvedDetails.closeLabel ?? closeLabel
+  const resolvedOnClose = resolvedActions.onClose ?? resolvedDetails.onClose ?? onClose
+  const resolvedShowClose =
+    resolvedActions.showClose ?? resolvedDetails.showClose ?? showClose ?? Boolean(resolvedOnClose)
+
+  const titleLabel = resolvedLabels.title ?? resolvedUi.labelTitle ?? labelTitle ?? DEFAULT_LABELS.title
+  const ownerLabel = resolvedLabels.owner ?? resolvedUi.labelOwner ?? labelOwner ?? DEFAULT_LABELS.owner
+  const statusLabel = resolvedLabels.status ?? resolvedUi.labelStatus ?? labelStatus ?? DEFAULT_LABELS.status
+  const updatedLabel = resolvedLabels.updated ?? resolvedUi.labelUpdated ?? labelUpdated ?? DEFAULT_LABELS.updated
+
+  const statusContent = statusStyle ? <span style={statusStyle}>{resolvedReport.status}</span> : resolvedReport.status
 
   return (
-    <div
-      style={{
-        marginTop: 12,
-        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-        borderRadius: 10,
-        padding: compact ? 8 : 12,
-        background: isLight ? '#ffffff' : '#2b3541',
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>Open Report</h3>
-      <p style={{ margin: '4px 0' }}>Title: {title}</p>
-      {showOwner && <p style={{ margin: '4px 0' }}>Owner: {owner}</p>}
-      {showStatus && <p style={{ margin: '4px 0' }}>Status: {status}</p>}
-      {showUpdated && <p style={{ margin: '4px 0' }}>Updated: {updatedDaysAgo} days ago</p>}
-      <p style={{ margin: '4px 0' }}>Open Count: {counter}</p>
-      <p style={{ margin: '4px 0' }}>Toast: {toast || 'none'}</p>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onClose} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          Close
+    <>
+      <p style={resolvedLineStyle}>
+        {titleLabel}: {resolvedReport.title}
+      </p>
+      <p style={resolvedLineStyle}>
+        {ownerLabel}: {resolvedReport.owner}
+      </p>
+      <p style={resolvedLineStyle}>
+        {statusLabel}: {statusContent}
+      </p>
+      <p style={resolvedLineStyle}>
+        {updatedLabel}: {resolvedReport.updatedDaysAgo} days ago
+      </p>
+      {resolvedShowClose && (
+        <button onClick={resolvedOnClose} style={resolvedButtonStyle}>
+          {resolvedCloseLabel}
         </button>
-        <button onClick={onPinToggle} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          {pinReady ? 'Unpin Ready' : 'Pin Ready'}
-        </button>
-        <button onClick={onEcho} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
-          Echo
-        </button>
-      </div>
-    </div>
+      )}
+    </>
   )
 }
