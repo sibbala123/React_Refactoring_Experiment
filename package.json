@@ -11,9 +11,16 @@
     "truth:gen": "node scripts/truth/runTruth.js --out truth",
     "truth:baseline": "node scripts/truth/runTruth.js --out truth_baseline",
     "truth:candidate": "node scripts/truth/runTruth.js --out truth_candidate",
-    "truth:diff": "node scripts/truth/difftruth.js --base truth_baseline --cand truth_candidate"
+    "truth:diff": "node scripts/truth/difftruth.js --base truth_baseline --cand truth_candidate",
+    "capture:one": "node scripts/capture/runCapture.js --out artifacts",
+    "capture:baseline": "node scripts/capture/runCapture.js --out artifacts_baseline",
+    "capture:candidate": "node scripts/capture/runCapture.js --out artifacts_candidate",
+    "experiment:run": "node scripts/experiment/run_openai_experiment.js",
+    "experiment:task": "node scripts/experiment/run_openai_experiment.js --task ex04",
+    "experiment:run3": "node scripts/experiment/run_openai_experiment.js --limit 3"
   },
   "dependencies": {
+    "openai": "^4.103.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1"
