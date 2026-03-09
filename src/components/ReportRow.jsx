@@ -1,11 +1,16 @@
 import { badgeColor } from '../utils/format'
-import { ActionButton, CardFrame } from './CustomerCard'
+import { ActionButton } from './CustomerCard'
 
 export default function ReportRow({ report, theme, onOpen }) {
+  const isLight = theme === 'light'
+
   return (
-    <CardFrame
-      theme={theme}
+    <div
       style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -20,6 +25,6 @@ export default function ReportRow({ report, theme, onOpen }) {
       <ActionButton onClick={() => onOpen(report)} padding="6px 10px">
         Open
       </ActionButton>
-    </CardFrame>
+    </div>
   )
 }
