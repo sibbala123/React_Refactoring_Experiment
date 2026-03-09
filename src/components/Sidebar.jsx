@@ -1,6 +1,9 @@
+import { useContext } from 'react'
 import NavList from './NavList'
+import { LayoutContext } from '../layout/Layout'
 
-export default function Sidebar({ theme, user, locale, currentPath }) {
+export default function Sidebar() {
+  const { theme } = useContext(LayoutContext)
   const isLight = theme === 'light'
 
   return (
@@ -13,7 +16,7 @@ export default function Sidebar({ theme, user, locale, currentPath }) {
       }}
     >
       <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Page Truth</h2>
-      <NavList theme={theme} user={user} locale={locale} currentPath={currentPath} />
+      <NavList />
     </aside>
   )
 }

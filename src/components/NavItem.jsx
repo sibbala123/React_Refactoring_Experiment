@@ -1,6 +1,9 @@
+import { useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { LayoutContext } from '../layout/Layout'
 
-export default function NavItem({ to, label, currentPath, theme, user, locale }) {
+export default function NavItem({ to, label }) {
+  const { theme, user, currentPath } = useContext(LayoutContext)
   const isLight = theme === 'light'
   const isActive = currentPath === to
 
@@ -16,7 +19,7 @@ export default function NavItem({ to, label, currentPath, theme, user, locale })
         color: isLight ? '#1c2630' : '#f2f6fb',
         display: 'block',
       }}
-      title={`Visible to role: ${user.role} (${locale})`}
+      title={`Visible to role: ${user.role}`}
     >
       {label}
     </Link>
