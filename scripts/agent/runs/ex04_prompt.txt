@@ -1,0 +1,336 @@
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex04
+- Target smell: Duplicated Code
+- Before branch: ex04_smelly
+- After branch: ex04_refactored
+- Target routes: ['/customers', '/reports']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Extract shared utility functions for repeated pure logic.
+- Extract shared UI component for repeated markup.
+- Parameterize repeated variants with props.
+
+FILES YOU MAY EDIT
+- src/pages/CustomersPage.jsx
+- src/pages/ReportsPage.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/pages/CustomersPage.jsx =====
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div
+          style={{
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+
+
+===== FILE: src/pages/ReportsPage.jsx =====
+import { useEffect, useMemo, useState } from 'react'
+import ReportRow from '../components/ReportRow'
+import Toolbar from '../components/Toolbar'
+import { REPORTS } from '../data/mockData'
+import { badgeColor } from '../utils/format'
+
+function filterReports(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((r) => {
+    const matchesQuery =
+      r.title.toLowerCase().includes(normalizedQuery) ||
+      r.owner.toLowerCase().includes(normalizedQuery) ||
+      r.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : r.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
+export default function ReportsPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('All')
+  const [opened, setOpened] = useState(null)
+  const [toast, setToast] = useState('')
+  const [counter, setCounter] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
+  const [pinReady, setPinReady] = useState(false)
+
+  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
+  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
+  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
+
+  useEffect(() => {
+    if (!toast) {
+      return undefined
+    }
+    const id = window.setTimeout(() => setToast(''), 1600)
+    return () => window.clearTimeout(id)
+  }, [toast])
+
+  const openReport = (report) => {
+    setOpened(report)
+    setCounter((prev) => prev + 1)
+    setToast(`Opened report: ${report.title}`)
+  }
+
+  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === 'Ready') : []
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />
+
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search reports..."
+          style={{ padding: 8, minWidth: 220, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          style={{ padding: 8, borderRadius: 8, border: '1px solid #99a6b3' }}
+        >
+          <option>All</option>
+          <option>Ready</option>
+          <option>Draft</option>
+          <option>Blocked</option>
+        </select>
+
+        <button onClick={() => setShowHelp((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showHelp ? 'Hide Help' : 'Show Help'}
+        </button>
+
+        <button onClick={() => setPinReady((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {pinReady ? 'Unpin Ready' : 'Pin Ready'}
+        </button>
+      </div>
+
+      {toast && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px solid ${isLight ? '#98b6d6' : '#5d83a9'}`,
+            borderRadius: 10,
+            padding: 10,
+            background: isLight ? '#eaf3ff' : '#2f4b67',
+          }}
+        >
+          {toast}
+        </div>
+      )}
+
+      {showHelp && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).
+        </div>
+      )}
+
+      <div
+        style={{
+          marginBottom: 12,
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          display: 'flex',
+          gap: 8,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+      </div>
+
+      {pinReady && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#f2fff3' : '#2f4533',
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
+          {pinnedReadyReports.map((report) => (
+            <div key={report.id} style={{ padding: '6px 0', borderBottom: '1px solid rgba(120,120,120,0.25)' }}>
+              {report.title} - {report.owner}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gap: 8 }}>
+        {filtered.map((report) => (
+          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+        ))}
+      </div>
+
+      {opened && (
+        <div
+          style={{
+            marginTop: 12,
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Open Report</h3>
+          <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
+          <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
+          <p style={{ margin: '4px 0' }}>Status: {opened.status}</p>
+          <p style={{ margin: '4px 0' }}>Updated: {opened.updatedDaysAgo} days ago</p>
+          <button onClick={() => setOpened(null)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+            Close
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+
+

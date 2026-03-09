@@ -1,0 +1,118 @@
+BEGIN_FILE: src/pages/CustomersPage.jsx
+```javascript
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  const filterBoxStyle = {
+    border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: isLight ? '#ffffff' : '#2b3541',
+    marginBottom: 12,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  }
+
+  const inputStyle = {
+    padding: 8,
+    minWidth: 240,
+    borderRadius: 8,
+    border: '1px solid #99a6b3',
+  }
+
+  const toggleButtonStyle = {
+    padding: '8px 10px',
+    borderRadius: 8,
+    border: '1px solid #99a6b3',
+  }
+
+  const selectedBoxStyle = {
+    border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: isLight ? '#ffffff' : '#2b3541',
+    marginBottom: 12,
+  }
+
+  const clearButtonStyle = {
+    marginLeft: 10,
+    padding: '4px 8px',
+    borderRadius: 8,
+    border: '1px solid #99a6b3',
+  }
+
+  const activeLabel = onlyActive ? 'Active' : 'All'
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div style={filterBoxStyle}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={inputStyle}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={toggleButtonStyle}>
+          Showing: {activeLabel}
+        </button>
+      </div>
+
+      {selected && (
+        <div style={selectedBoxStyle}>
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button onClick={() => setSelected(null)} style={clearButtonStyle}>
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE

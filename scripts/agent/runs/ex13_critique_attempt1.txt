@@ -1,0 +1,11 @@
+{
+  "score": 0.62,
+  "acceptable": false,
+  "issues": [
+    "Toast panel padding changed from 10 to 12 due to reuse of basePanelStyle, altering layout/styling in violation of invariants."
+  ],
+  "repair_instructions": [
+    "Restore toast panel padding to 10px by overriding padding in toastStyle or avoid using basePanelStyle for that panel."
+  ],
+  "summary": "Refactor is close but changes toast padding, impacting styling."
+}

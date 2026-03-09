@@ -1,0 +1,126 @@
+BEGIN_FILE: src/pages/CustomersPage.jsx
+```jsx
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+function CustomersFilters({ isLight, query, onlyActive, onQueryChange, onToggleActive }) {
+  return (
+    <div
+      style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
+        marginBottom: 12,
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8,
+      }}
+    >
+      <input
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        placeholder="Search customers..."
+        style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+      />
+      <button onClick={onToggleActive} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+        Showing: {onlyActive ? 'Active' : 'All'}
+      </button>
+    </div>
+  )
+}
+
+function SelectedCustomerCard({ isLight, selected, onClear }) {
+  if (!selected) {
+    return null
+  }
+
+  return (
+    <div
+      style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
+        marginBottom: 12,
+      }}
+    >
+      <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+      <button onClick={onClear} style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+        Clear
+      </button>
+    </div>
+  )
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  const handleToggleActive = () => {
+    setOnlyActive((prev) => !prev)
+  }
+
+  const handleQueryChange = (value) => {
+    setQuery(value)
+  }
+
+  const handleClearSelected = () => {
+    setSelected(null)
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <CustomersFilters
+        isLight={isLight}
+        query={query}
+        onlyActive={onlyActive}
+        onQueryChange={handleQueryChange}
+        onToggleActive={handleToggleActive}
+      />
+      <SelectedCustomerCard isLight={isLight} selected={selected} onClear={handleClearSelected} />
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE

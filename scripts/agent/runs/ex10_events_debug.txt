@@ -1,0 +1,14 @@
+attempt=1
+new_event_count=8
+attempt1:0:SystemPromptEvent
+attempt1:1:MessageEvent
+attempt1:2:ActionEvent
+attempt1:3:ActionEvent
+attempt1:4:ObservationEvent
+attempt1:5:ObservationEvent
+attempt1:6:ActionEvent
+attempt1:7:ObservationEvent
+attempt=2
+new_event_count=2
+attempt2:0:MessageEvent
+attempt2:1:MessageEvent

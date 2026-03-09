@@ -1,0 +1,218 @@
+BEGIN_FILE: src/pages/ReportsPage.jsx
+```javascript
+import { useEffect, useMemo, useState } from 'react'
+import ReportRow from '../components/ReportRow'
+import Toolbar from '../components/Toolbar'
+import { REPORTS } from '../data/mockData'
+import { badgeColor } from '../utils/format'
+
+const basePanelStyle = {
+  borderRadius: 10,
+  padding: 12,
+}
+
+const inputStyle = {
+  padding: 8,
+  minWidth: 220,
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+const selectStyle = {
+  padding: 8,
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+const buttonStyle = {
+  padding: '8px 10px',
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+const pinnedRowStyle = {
+  padding: '6px 0',
+  borderBottom: '1px solid rgba(120,120,120,0.25)',
+}
+
+const openedDetailStyle = { margin: '4px 0' }
+
+function filterReports(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((r) => {
+    const matchesQuery =
+      r.title.toLowerCase().includes(normalizedQuery) ||
+      r.owner.toLowerCase().includes(normalizedQuery) ||
+      r.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : r.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
+export default function ReportsPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('All')
+  const [opened, setOpened] = useState(null)
+  const [toast, setToast] = useState('')
+  const [counter, setCounter] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
+  const [pinReady, setPinReady] = useState(false)
+
+  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
+  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
+  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
+
+  useEffect(() => {
+    if (!toast) {
+      return undefined
+    }
+    const id = window.setTimeout(() => setToast(''), 1600)
+    return () => window.clearTimeout(id)
+  }, [toast])
+
+  const openReport = (report) => {
+    setOpened(report)
+    setCounter((prev) => prev + 1)
+    setToast(`Opened report: ${report.title}`)
+  }
+
+  const panelColors = {
+    standardBorder: isLight ? '#c8d1db' : '#4b5b6d',
+    standardBackground: isLight ? '#ffffff' : '#2b3541',
+    toastBorder: isLight ? '#98b6d6' : '#5d83a9',
+    toastBackground: isLight ? '#eaf3ff' : '#2f4b67',
+    helpBorder: isLight ? '#7d8d9f' : '#7a8ea3',
+    helpBackground: isLight ? '#ffffff' : '#2b3541',
+    pinBorder: isLight ? '#b7d8be' : '#55815d',
+    pinBackground: isLight ? '#f2fff3' : '#2f4533',
+  }
+
+  const controlsStyle = {
+    ...basePanelStyle,
+    marginBottom: 12,
+    border: `1px solid ${panelColors.standardBorder}`,
+    background: panelColors.standardBackground,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  }
+
+  const toastStyle = {
+    ...basePanelStyle,
+    marginBottom: 12,
+    border: `1px solid ${panelColors.toastBorder}`,
+    background: panelColors.toastBackground,
+  }
+
+  const helpStyle = {
+    ...basePanelStyle,
+    marginBottom: 12,
+    border: `1px dashed ${panelColors.helpBorder}`,
+    background: panelColors.helpBackground,
+  }
+
+  const summaryStyle = {
+    ...basePanelStyle,
+    marginBottom: 12,
+    border: `1px solid ${panelColors.standardBorder}`,
+    background: panelColors.standardBackground,
+    display: 'flex',
+    gap: 8,
+    flexWrap: 'wrap',
+  }
+
+  const pinnedStyle = {
+    ...basePanelStyle,
+    marginBottom: 12,
+    border: `1px solid ${panelColors.pinBorder}`,
+    background: panelColors.pinBackground,
+  }
+
+  const openedStyle = {
+    ...basePanelStyle,
+    marginTop: 12,
+    border: `1px solid ${panelColors.standardBorder}`,
+    background: panelColors.standardBackground,
+  }
+
+  const helpButtonLabel = showHelp ? 'Hide Help' : 'Show Help'
+  const pinButtonLabel = pinReady ? 'Unpin Ready' : 'Pin Ready'
+  const helpMessage = `Use search + status to narrow rows. "Open" loads a details panel and increments open count (${counter}).`
+
+  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === 'Ready') : []
+  const pinnedReadyRows = pinnedReadyReports.map((report) => (
+    <div key={report.id} style={pinnedRowStyle}>
+      {report.title} - {report.owner}
+    </div>
+  ))
+
+  const reportRows = filtered.map((report) => (
+    <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+  ))
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />
+
+      <div style={controlsStyle}>
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search reports..." style={inputStyle} />
+
+        <select value={status} onChange={(e) => setStatus(e.target.value)} style={selectStyle}>
+          <option>All</option>
+          <option>Ready</option>
+          <option>Draft</option>
+          <option>Blocked</option>
+        </select>
+
+        <button onClick={() => setShowHelp((prev) => !prev)} style={buttonStyle}>
+          {helpButtonLabel}
+        </button>
+
+        <button onClick={() => setPinReady((prev) => !prev)} style={buttonStyle}>
+          {pinButtonLabel}
+        </button>
+      </div>
+
+      {toast && <div style={toastStyle}>{toast}</div>}
+
+      {showHelp && (
+        <div style={helpStyle}>
+          <strong>Help:</strong> {helpMessage}
+        </div>
+      )}
+
+      <div style={summaryStyle}>
+        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+      </div>
+
+      {pinReady && (
+        <div style={pinnedStyle}>
+          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
+          {pinnedReadyRows}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gap: 8 }}>{reportRows}</div>
+
+      {opened && (
+        <div style={openedStyle}>
+          <h3 style={{ marginTop: 0 }}>Open Report</h3>
+          <p style={openedDetailStyle}>Title: {opened.title}</p>
+          <p style={openedDetailStyle}>Owner: {opened.owner}</p>
+          <p style={openedDetailStyle}>Status: {opened.status}</p>
+          <p style={openedDetailStyle}>Updated: {opened.updatedDaysAgo} days ago</p>
+          <button onClick={() => setOpened(null)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+            Close
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE

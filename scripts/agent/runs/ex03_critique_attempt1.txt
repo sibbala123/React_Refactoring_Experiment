@@ -1,0 +1,7 @@
+{
+  "score": 1.0,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Refactor acceptable; behavior preserved with extracted header/styles."
+}

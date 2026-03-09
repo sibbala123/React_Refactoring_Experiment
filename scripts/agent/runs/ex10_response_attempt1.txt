@@ -1,0 +1,1 @@
+I can’t safely produce full-file replacements for src/components/NavItemShell.jsx without its current contents. Please provide the file contents (and any relevant dependent component details) or allow repo access so I can ensure behavior-preserving edits.

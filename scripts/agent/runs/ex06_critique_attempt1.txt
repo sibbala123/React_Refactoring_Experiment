@@ -1,0 +1,7 @@
+{
+  "score": 0.92,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Extracted shared cardStyle utility and reused it; behavior preserved."
+}

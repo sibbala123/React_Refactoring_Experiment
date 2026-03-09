@@ -1,0 +1,161 @@
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex05
+- Target smell: Duplicated Code
+- Before branch: ex05_smelly
+- After branch: ex05_refactored
+- Target routes: ['/customers', '/reports']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Extract shared utility functions for repeated pure logic.
+- Extract shared UI component for repeated markup.
+- Parameterize repeated variants with props.
+
+FILES YOU MAY EDIT
+- src/components/CustomerCard.jsx
+- src/components/ReportRow.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/components/CustomerCard.jsx =====
+import { formatCurrency } from '../utils/format'
+
+const baseButtonStyle = {
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+export function ActionButton({ onClick, children, style }) {
+  return (
+    <button onClick={onClick} style={{ ...baseButtonStyle, ...style }}>
+      {children}
+    </button>
+  )
+}
+
+export default function CustomerCard({
+  id,
+  name,
+  tier,
+  region,
+  spend,
+  active,
+  showSpend,
+  showRegion,
+  showTier,
+  highlightIfGold,
+  isCompact,
+  theme,
+  selected,
+  isToggled,
+  onSelect,
+  onHover,
+  onToggle,
+  onAlertName,
+}) {
+  const isLight = theme === 'light'
+  const shouldHighlight = highlightIfGold && tier === 'Gold'
+
+  return (
+    <article
+      onMouseEnter={() => onHover(name)}
+      style={{
+        border: `1px solid ${selected ? '#3d87db' : isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: isCompact ? 8 : 12,
+        background: shouldHighlight ? (isLight ? '#fff8dd' : '#534a26') : isLight ? '#ffffff' : '#2b3541',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+        <strong>{name}</strong>
+        <span>{active ? 'Active' : 'Inactive'}</span>
+      </div>
+
+      <div style={{ marginTop: 6, fontSize: 14 }}>
+        {showTier && <div>Tier: {tier}</div>}
+        {showRegion && <div>Region: {region}</div>}
+        {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
+        <div>Toggled: {isToggled ? 'On' : 'Off'}</div>
+      </div>
+
+      <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <ActionButton onClick={() => onSelect({ id, name, tier, region, spend, active })} style={{ padding: '4px 8px' }}>
+          Select
+        </ActionButton>
+        <ActionButton onClick={() => onToggle(id)} style={{ padding: '4px 8px' }}>
+          Toggle
+        </ActionButton>
+        <ActionButton onClick={() => onAlertName(name)} style={{ padding: '4px 8px' }}>
+          Alert Name
+        </ActionButton>
+      </div>
+    </article>
+  )
+}
+
+
+===== FILE: src/components/ReportRow.jsx =====
+import { badgeColor } from '../utils/format'
+import { ActionButton } from './CustomerCard'
+
+export default function ReportRow({ report, theme, onOpen }) {
+  const isLight = theme === 'light'
+
+  return (
+    <div
+      style={{
+        border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: 12,
+        background: isLight ? '#ffffff' : '#2b3541',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 8,
+      }}
+    >
+      <div>
+        <strong>{report.title}</strong>
+        <div style={{ fontSize: 14, opacity: 0.85 }}>Owner: {report.owner}</div>
+        <div style={{ fontSize: 14, color: badgeColor(report.status) }}>{report.status}</div>
+      </div>
+      <ActionButton onClick={() => onOpen(report)} style={{ padding: '6px 10px' }}>
+        Open
+      </ActionButton>
+    </div>
+  )
+}
+
+
+

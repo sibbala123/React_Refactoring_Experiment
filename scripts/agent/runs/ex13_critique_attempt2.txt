@@ -1,0 +1,1 @@
+{"score":1.0,"acceptable":true,"issues":[],"repair_instructions":[],"summary":"Refactor extracts styles/labels without altering behavior or structure."}

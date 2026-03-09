@@ -1,0 +1,274 @@
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex07
+- Target smell: Too Many Props
+- Before branch: ex07_smelly
+- After branch: ex07_refactored
+- Target routes: ['/customers']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Group related props into objects with stable shape.
+- Derive values locally where safe instead of passing through.
+- Extract subcomponents to reduce prop surface.
+
+FILES YOU MAY EDIT
+- src/components/CustomerCard.jsx
+- src/components/CustomerList.jsx
+- src/pages/CustomersPage.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/components/CustomerCard.jsx =====
+import { formatCurrency } from '../utils/format'
+
+const baseButtonStyle = {
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+export function ActionButton({ onClick, children, style }) {
+  return (
+    <button onClick={onClick} style={{ ...baseButtonStyle, ...style }}>
+      {children}
+    </button>
+  )
+}
+
+export default function CustomerCard({
+  id,
+  name,
+  tier,
+  region,
+  spend,
+  active,
+  showSpend,
+  showRegion,
+  showTier,
+  highlightIfGold,
+  isCompact,
+  theme,
+  selected,
+  isToggled,
+  onSelect,
+  onHover,
+  onToggle,
+  onAlertName,
+}) {
+  const isLight = theme === 'light'
+  const shouldHighlight = highlightIfGold && tier === 'Gold'
+
+  return (
+    <article
+      onMouseEnter={() => onHover(name)}
+      style={{
+        border: `1px solid ${selected ? '#3d87db' : isLight ? '#c8d1db' : '#4b5b6d'}`,
+        borderRadius: 10,
+        padding: isCompact ? 8 : 12,
+        background: shouldHighlight ? (isLight ? '#fff8dd' : '#534a26') : isLight ? '#ffffff' : '#2b3541',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+        <strong>{name}</strong>
+        <span>{active ? 'Active' : 'Inactive'}</span>
+      </div>
+
+      <div style={{ marginTop: 6, fontSize: 14 }}>
+        {showTier && <div>Tier: {tier}</div>}
+        {showRegion && <div>Region: {region}</div>}
+        {showSpend && <div>Spend: {formatCurrency(spend)}</div>}
+        <div>Toggled: {isToggled ? 'On' : 'Off'}</div>
+      </div>
+
+      <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <ActionButton onClick={() => onSelect({ id, name, tier, region, spend, active })} style={{ padding: '4px 8px' }}>
+          Select
+        </ActionButton>
+        <ActionButton onClick={() => onToggle(id)} style={{ padding: '4px 8px' }}>
+          Toggle
+        </ActionButton>
+        <ActionButton onClick={() => onAlertName(name)} style={{ padding: '4px 8px' }}>
+          Alert Name
+        </ActionButton>
+      </div>
+    </article>
+  )
+}
+
+
+===== FILE: src/components/CustomerList.jsx =====
+import CustomerCard from './CustomerCard'
+
+export default function CustomerList({
+  customers,
+  showSpend,
+  showRegion,
+  showTier,
+  highlightIfGold,
+  isCompact,
+  theme,
+  selectedCustomerId,
+  toggledMap,
+  onSelect,
+  onHover,
+  onToggle,
+  onAlertName,
+}) {
+  return (
+    <div style={{ display: 'grid', gap: 10 }}>
+      {customers.map((customer) => (
+        <CustomerCard
+          key={customer.id}
+          id={customer.id}
+          name={customer.name}
+          tier={customer.tier}
+          region={customer.region}
+          spend={customer.spend}
+          active={customer.active}
+          showSpend={showSpend}
+          showRegion={showRegion}
+          showTier={showTier}
+          highlightIfGold={highlightIfGold}
+          isCompact={isCompact}
+          theme={theme}
+          selected={selectedCustomerId === customer.id}
+          isToggled={!!toggledMap[customer.id]}
+          onSelect={onSelect}
+          onHover={onHover}
+          onToggle={onToggle}
+          onAlertName={onAlertName}
+        />
+      ))}
+    </div>
+  )
+}
+
+
+===== FILE: src/pages/CustomersPage.jsx =====
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div
+          style={{
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+
+
+

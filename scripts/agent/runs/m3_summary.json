@@ -1,0 +1,26 @@
+[
+  {
+    "task_id": "ex11",
+    "before_branch": "ex11_smelly",
+    "out_branch": "ex11_agent_exec",
+    "response_file": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex11_response.txt",
+    "execution_agent_used": false,
+    "validation_attempts": 3,
+    "tool_call_count": 0,
+    "bash_tool_calls": 0,
+    "file_edit_tool_calls": 0,
+    "checks_passed": false,
+    "build_passed": false,
+    "execution_log_file": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex11_m3_execution_log.json",
+    "check_log_file": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex11_m3_checks.json",
+    "touched_files": [
+      "src/components/ReportRows.jsx",
+      "src/pages/ReportsPage.jsx"
+    ],
+    "execution_agent_error": "Windows is not supported yet for OpenHands V1.",
+    "events_log_file": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex11_m3_agent_events.txt",
+    "status": "failed",
+    "error": "Execution agent could not make checks pass for ex11. See C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex11_m3_execution_log.json",
+    "duration_seconds": 3.68
+  }
+]

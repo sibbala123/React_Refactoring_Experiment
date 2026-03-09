@@ -1,0 +1,71 @@
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex10
+- Target smell: Prop Drilling
+- Before branch: ex10_smelly
+- After branch: ex10_refactored
+- Target routes: ['/', '/customers', '/reports']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Use React context for deeply shared data/actions.
+- Co-locate state nearer heavy consumers where safe.
+- Introduce custom hooks to centralize shared state access.
+
+FILES YOU MAY EDIT
+- src/components/NavItemShell.jsx
+- src/components/NavList.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/components/NavList.jsx =====
+import NavItem from './NavItem'
+
+const items = [
+  { to: '/', label: 'Home' },
+  { to: '/customers', label: 'Customers' },
+  { to: '/reports', label: 'Reports' },
+]
+
+export default function NavList({ theme, user, currentPath }) {
+  return (
+    <nav style={{ display: 'grid', gap: 8 }}>
+      {items.map((item) => (
+        <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
+      ))}
+    </nav>
+  )
+}
+
+
+

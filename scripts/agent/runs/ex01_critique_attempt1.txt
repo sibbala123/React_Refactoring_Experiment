@@ -1,0 +1,1 @@
+{"score":0.95,"acceptable":true,"issues":[],"repair_instructions":[],"summary":"Refactor extracts components and preserves behavior with no detected issues."}

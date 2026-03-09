@@ -1,0 +1,10 @@
+attempt=1
+refactor_event_count=3
+critique_event_count=3
+critique_score=0.62
+critique_acceptable=False
+attempt=2
+refactor_event_count=4
+critique_event_count=3
+critique_score=1.0
+critique_acceptable=True

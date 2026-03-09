@@ -1,0 +1,1 @@
+{"score":0.88,"acceptable":true,"issues":[],"repair_instructions":[],"summary":"Refactor groups open-report props into a details object without altering behavior."}

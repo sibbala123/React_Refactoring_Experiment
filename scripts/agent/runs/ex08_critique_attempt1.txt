@@ -1,0 +1,13 @@
+{
+  "score": 0.2,
+  "acceptable": false,
+  "issues": [
+    "Build fails: `colorStatus` in `ReportRowDetails.jsx` mixes `??` with `&&` without parentheses (`resolvedUi.colorStatus ?? legacy.colorStatus ?? statusColor !== undefined && statusColor !== null`), which esbuild rejects.",
+    "Behavioral risk: `ReportRowDetails` now conditionally omits Title/Owner/Status lines (and can return null) when those fields are falsy; previously the open report panel rendered those lines unconditionally for the opened report."
+  ],
+  "repair_instructions": [
+    "Fix the `colorStatus` expression by adding parentheses or splitting into a separate boolean variable so it no longer mixes `??` and `&&` in a single expression.",
+    "Ensure the open report details render consistently with the original behavior by checking for `null`/`undefined` instead of truthiness, and avoid returning null when a report is provided."
+  ],
+  "summary": "Refactor is not acceptable due to build error and potential rendering changes."
+}

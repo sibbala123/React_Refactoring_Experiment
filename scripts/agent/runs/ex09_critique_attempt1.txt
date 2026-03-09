@@ -1,0 +1,7 @@
+{
+  "score": 0.93,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Refactor groups props via shell without altering behavior or UI."
+}

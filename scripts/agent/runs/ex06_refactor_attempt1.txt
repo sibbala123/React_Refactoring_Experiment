@@ -1,0 +1,125 @@
+BEGIN_FILE: src/pages/HomePage.jsx
+```jsx
+import Toolbar from '../components/Toolbar'
+
+const tips = [
+  { id: 't1', title: 'Search Fast', text: 'Use quick filters to locate records quickly.' },
+  { id: 't2', title: 'Pin Priorities', text: 'Pin ready reports when planning weekly reviews.' },
+  { id: 't3', title: 'Track Activity', text: 'Toggle active-only views to focus on live accounts.' },
+]
+
+export const cardStyle = (isLight, extraStyles = {}) => ({
+  border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+  borderRadius: 10,
+  padding: 12,
+  background: isLight ? '#ffffff' : '#2b3541',
+  ...extraStyles,
+})
+
+export default function HomePage({ theme, user }) {
+  const isLight = theme === 'light'
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Home" subtitle={`Welcome back, ${user.name}`} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+        {tips.map((tip) => (
+          <article key={tip.id} style={cardStyle(isLight)}>
+            <h3 style={{ marginTop: 0 }}>{tip.title}</h3>
+            <p style={{ marginBottom: 0, opacity: 0.9 }}>{tip.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/pages/CustomersPage.jsx
+```jsx
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+import { cardStyle } from './HomePage'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={cardStyle(isLight, {
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        })}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div style={cardStyle(isLight, { marginBottom: 12 })}>
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE

@@ -1,0 +1,201 @@
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex12
+- Target smell: Prop Drilling
+- Before branch: ex12_smelly
+- After branch: ex12_refactored
+- Target routes: ['/', '/customers', '/reports']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Use React context for deeply shared data/actions.
+- Co-locate state nearer heavy consumers where safe.
+- Introduce custom hooks to centralize shared state access.
+
+FILES YOU MAY EDIT
+- src/App.jsx
+- src/components/NavItem.jsx
+- src/components/NavList.jsx
+- src/components/Sidebar.jsx
+- src/layout/Layout.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/App.jsx =====
+import { useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Layout from './layout/Layout'
+import HomePage from './pages/HomePage'
+import CustomersPage from './pages/CustomersPage'
+import ReportsPage from './pages/ReportsPage'
+
+export default function App() {
+  const [theme, setTheme] = useState('light')
+  const user = { name: 'Avery Lane', role: 'Manager', team: 'Revenue Ops' }
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
+
+  return (
+    <Layout theme={theme} user={user} onToggleTheme={toggleTheme}>
+      <Routes>
+        <Route path="/" element={<HomePage theme={theme} user={user} />} />
+        <Route path="/customers" element={<CustomersPage theme={theme} user={user} />} />
+        <Route path="/reports" element={<ReportsPage theme={theme} user={user} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  )
+}
+
+
+===== FILE: src/components/NavItem.jsx =====
+import { Link } from 'react-router-dom'
+
+export default function NavItem({ to, label, currentPath, theme, user }) {
+  const isLight = theme === 'light'
+  const isActive = currentPath === to
+
+  return (
+    <Link
+      to={to}
+      style={{
+        textDecoration: 'none',
+        border: `1px solid ${isActive ? '#3d87db' : isLight ? '#c8d1db' : '#48586a'}`,
+        borderRadius: 8,
+        padding: '8px 10px',
+        background: isActive ? (isLight ? '#e8f2ff' : '#2f4b67') : isLight ? '#ffffff' : '#2b3541',
+        color: isLight ? '#1c2630' : '#f2f6fb',
+        display: 'block',
+      }}
+      title={`Visible to role: ${user.role}`}
+    >
+      {label}
+    </Link>
+  )
+}
+
+
+===== FILE: src/components/NavList.jsx =====
+import NavItem from './NavItem'
+
+const items = [
+  { to: '/', label: 'Home' },
+  { to: '/customers', label: 'Customers' },
+  { to: '/reports', label: 'Reports' },
+]
+
+export default function NavList({ theme, user, currentPath }) {
+  return (
+    <nav style={{ display: 'grid', gap: 8 }}>
+      {items.map((item) => (
+        <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
+      ))}
+    </nav>
+  )
+}
+
+
+===== FILE: src/components/Sidebar.jsx =====
+import NavList from './NavList'
+
+export default function Sidebar({ theme, user, currentPath }) {
+  const isLight = theme === 'light'
+
+  return (
+    <aside
+      style={{
+        width: 230,
+        padding: 14,
+        borderRight: `1px solid ${isLight ? '#c8d1db' : '#3b4958'}`,
+        background: isLight ? '#ffffff' : '#26303a',
+      }}
+    >
+      <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Page Truth</h2>
+      <NavList theme={theme} user={user} currentPath={currentPath} />
+    </aside>
+  )
+}
+
+
+===== FILE: src/layout/Layout.jsx =====
+import { Link, useLocation } from 'react-router-dom'
+import Sidebar from '../components/Sidebar'
+
+export default function Layout({ children, theme, user, onToggleTheme }) {
+  const isLight = theme === 'light'
+  const location = useLocation()
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: isLight ? '#f6f8fb' : '#1f252c',
+        color: isLight ? '#17202a' : '#f5f7fa',
+        fontFamily: 'Segoe UI, Tahoma, sans-serif',
+      }}
+    >
+      <Sidebar theme={theme} user={user} currentPath={location.pathname} />
+      <div style={{ flex: 1, padding: 16 }}>
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 16,
+            border: `1px solid ${isLight ? '#c8d1db' : '#3b4958'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <div>Signed in as {user.name} ({user.role})</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={onToggleTheme} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+              Theme: {theme}
+            </button>
+            <Link to="/" style={{ color: isLight ? '#165fb7' : '#95c4ff' }}>
+              Home
+            </Link>
+          </div>
+        </header>
+        <main>{children}</main>
+      </div>
+    </div>
+  )
+}
+
+
+

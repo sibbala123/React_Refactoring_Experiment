@@ -1,0 +1,7 @@
+{
+  "score": 0.93,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Context-based ReportRows preserves behavior and reduces prop drilling."
+}

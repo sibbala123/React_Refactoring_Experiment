@@ -1,0 +1,399 @@
+--- EVENT 0 ---
+type=SystemPromptEvent
+source=agent
+
+--- EVENT 1 ---
+type=MessageEvent
+source=user
+role=user
+content:
+You are the CRITIQUE agent for task ex09. You are a reviewer, not an editor.
+
+Evaluate whether the candidate refactor should be accepted.
+Review for:
+- task compliance
+- behavior preservation risk
+- import/export issues
+- incomplete edits
+- over-editing
+- likely runtime/semantic issues
+
+Do NOT propose rewritten files. Do NOT output BEGIN_FILE blocks.
+Return STRICT JSON only with this schema:
+{
+  "score": 0.0,
+  "acceptable": false,
+  "issues": ["..."],
+  "repair_instructions": ["..."],
+  "summary": "..."
+}
+
+Task prompt context:
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex09
+- Target smell: Too Many Props
+- Before branch: ex09_smelly
+- After branch: ex09_refactored
+- Target routes: ['/customers']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Group related props into objects with stable shape.
+- Derive values locally where safe instead of passing through.
+- Extract subcomponents to reduce prop surface.
+
+FILES YOU MAY EDIT
+- src/components/CustomerListShell.jsx
+- src/pages/CustomersPage.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/pages/CustomersPage.jsx =====
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div
+          style={{
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+
+
+
+
+
+Touched files:
+- C:\Users\jayan\7000 project\page-truth-smells\src\components\CustomerListShell.jsx
+- C:\Users\jayan\7000 project\page-truth-smells\src\pages\CustomersPage.jsx
+
+Build status: PASSED
+Build log tail:
+
+> page-truth-smells@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mâœ“[39m 54 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.39 kB[22m[1m[22m[2m â”‚ gzip:  0.27 kB[22m
+[2mdist/[22m[36massets/index-C-VgCzWR.js  [39m[1m[2m243.29 kB[22m[1m[22m[2m â”‚ gzip: 77.39 kB[22m
+[32mâœ“ built in 2.03s[39m
+
+
+
+Candidate response text:
+BEGIN_FILE: src/components/CustomerListShell.jsx
+```javascript
+import CustomerList from './CustomerList'
+
+export default function CustomerListShell({
+  data,
+  displayOptions,
+  handlers,
+  customers,
+  selectedCustomerId,
+  toggledMap,
+  theme,
+  showSpend,
+  showRegion,
+  showTier,
+  highlightIfGold,
+  isCompact,
+  onSelect,
+  onHover,
+  onToggle,
+  onAlertName,
+}) {
+  const resolvedData = {
+    customers: data?.customers ?? customers,
+    selectedCustomerId: data?.selectedCustomerId ?? selectedCustomerId,
+    toggledMap: data?.toggledMap ?? toggledMap,
+    theme: data?.theme ?? theme,
+  }
+
+  const resolvedDisplayOptions = {
+    showSpend: displayOptions?.showSpend ?? showSpend,
+    showRegion: displayOptions?.showRegion ?? showRegion,
+    showTier: displayOptions?.showTier ?? showTier,
+    highlightIfGold: displayOptions?.highlightIfGold ?? highlightIfGold,
+    isCompact: displayOptions?.isCompact ?? isCompact,
+  }
+
+  const resolvedHandlers = {
+    onSelect: handlers?.onSelect ?? onSelect,
+    onHover: handlers?.onHover ?? onHover,
+    onToggle: handlers?.onToggle ?? onToggle,
+    onAlertName: handlers?.onAlertName ?? onAlertName,
+  }
+
+  return (
+    <CustomerList
+      customers={resolvedData.customers}
+      showSpend={resolvedDisplayOptions.showSpend}
+      showRegion={resolvedDisplayOptions.showRegion}
+      showTier={resolvedDisplayOptions.showTier}
+      highlightIfGold={resolvedDisplayOptions.highlightIfGold}
+      isCompact={resolvedDisplayOptions.isCompact}
+      theme={resolvedData.theme}
+      selectedCustomerId={resolvedData.selectedCustomerId}
+      toggledMap={resolvedData.toggledMap}
+      onSelect={resolvedHandlers.onSelect}
+      onHover={resolvedHandlers.onHover}
+      onToggle={resolvedHandlers.onToggle}
+      onAlertName={resolvedHandlers.onAlertName}
+    />
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/pages/CustomersPage.jsx
+```javascript
+import { useMemo, useState } from 'react'
+import CustomerListShell from '../components/CustomerListShell'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+const DISPLAY_OPTIONS = {
+  showSpend: true,
+  showRegion: true,
+  showTier: true,
+  highlightIfGold: true,
+  isCompact: false,
+}
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  const handleHover = (name) => console.log('Hover customer', name)
+  const handleAlertName = (name) => window.alert(name)
+
+  const listData = {
+    customers: results,
+    selectedCustomerId: selected?.id ?? null,
+    toggledMap: toggled,
+    theme,
+  }
+
+  const listHandlers = {
+    onSelect: setSelected,
+    onHover: handleHover,
+    onToggle: handleToggleFlag,
+    onAlertName: handleAlertName,
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div
+          style={{
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerListShell data={listData} displayOptions={DISPLAY_OPTIONS} handlers={listHandlers} />
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE
+
+--- EVENT 2 ---
+type=MessageEvent
+source=agent
+role=assistant
+content:
+{
+  "score": 0.93,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Refactor groups props via shell without altering behavior or UI."
+}
+
+=== FINAL_EXTRACTED_RESPONSE ===
+{
+  "score": 0.93,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Refactor groups props via shell without altering behavior or UI."
+}

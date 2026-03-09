@@ -1,0 +1,386 @@
+--- EVENT 0 ---
+type=SystemPromptEvent
+source=agent
+
+--- EVENT 1 ---
+type=MessageEvent
+source=user
+role=user
+content:
+You are the CRITIQUE agent for task ex06. You are a reviewer, not an editor.
+
+Evaluate whether the candidate refactor should be accepted.
+Review for:
+- task compliance
+- behavior preservation risk
+- import/export issues
+- incomplete edits
+- over-editing
+- likely runtime/semantic issues
+
+Do NOT propose rewritten files. Do NOT output BEGIN_FILE blocks.
+Return STRICT JSON only with this schema:
+{
+  "score": 0.0,
+  "acceptable": false,
+  "issues": ["..."],
+  "repair_instructions": ["..."],
+  "summary": "..."
+}
+
+Task prompt context:
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex06
+- Target smell: Duplicated Code
+- Before branch: ex06_smelly
+- After branch: ex06_refactored
+- Target routes: ['/', '/customers']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Extract shared utility functions for repeated pure logic.
+- Extract shared UI component for repeated markup.
+- Parameterize repeated variants with props.
+
+FILES YOU MAY EDIT
+- src/pages/CustomersPage.jsx
+- src/pages/HomePage.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/pages/CustomersPage.jsx =====
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div
+          style={{
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+            marginBottom: 12,
+          }}
+        >
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+
+
+===== FILE: src/pages/HomePage.jsx =====
+import Toolbar from '../components/Toolbar'
+
+const tips = [
+  { id: 't1', title: 'Search Fast', text: 'Use quick filters to locate records quickly.' },
+  { id: 't2', title: 'Pin Priorities', text: 'Pin ready reports when planning weekly reviews.' },
+  { id: 't3', title: 'Track Activity', text: 'Toggle active-only views to focus on live accounts.' },
+]
+
+export default function HomePage({ theme, user }) {
+  const isLight = theme === 'light'
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Home" subtitle={`Welcome back, ${user.name}`} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+        {tips.map((tip) => (
+          <article
+            key={tip.id}
+            style={{
+              border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+              borderRadius: 10,
+              padding: 12,
+              background: isLight ? '#ffffff' : '#2b3541',
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>{tip.title}</h3>
+            <p style={{ marginBottom: 0, opacity: 0.9 }}>{tip.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+
+
+
+
+Touched files:
+- C:\Users\jayan\7000 project\page-truth-smells\src\pages\HomePage.jsx
+- C:\Users\jayan\7000 project\page-truth-smells\src\pages\CustomersPage.jsx
+
+Build status: PASSED
+Build log tail:
+
+> page-truth-smells@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mâœ“[39m 53 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.39 kB[22m[1m[22m[2m â”‚ gzip:  0.27 kB[22m
+[2mdist/[22m[36massets/index-BW5t7wpV.js  [39m[1m[2m242.15 kB[22m[1m[22m[2m â”‚ gzip: 77.14 kB[22m
+[32mâœ“ built in 2.19s[39m
+
+
+
+Candidate response text:
+BEGIN_FILE: src/pages/HomePage.jsx
+```jsx
+import Toolbar from '../components/Toolbar'
+
+const tips = [
+  { id: 't1', title: 'Search Fast', text: 'Use quick filters to locate records quickly.' },
+  { id: 't2', title: 'Pin Priorities', text: 'Pin ready reports when planning weekly reviews.' },
+  { id: 't3', title: 'Track Activity', text: 'Toggle active-only views to focus on live accounts.' },
+]
+
+export const cardStyle = (isLight, extraStyles = {}) => ({
+  border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+  borderRadius: 10,
+  padding: 12,
+  background: isLight ? '#ffffff' : '#2b3541',
+  ...extraStyles,
+})
+
+export default function HomePage({ theme, user }) {
+  const isLight = theme === 'light'
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Home" subtitle={`Welcome back, ${user.name}`} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+        {tips.map((tip) => (
+          <article key={tip.id} style={cardStyle(isLight)}>
+            <h3 style={{ marginTop: 0 }}>{tip.title}</h3>
+            <p style={{ marginBottom: 0, opacity: 0.9 }}>{tip.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/pages/CustomersPage.jsx
+```jsx
+import { useMemo, useState } from 'react'
+import CustomerList from '../components/CustomerList'
+import Toolbar from '../components/Toolbar'
+import { CUSTOMERS } from '../data/mockData'
+import { cardStyle } from './HomePage'
+
+function filterCustomers(customers, query, onlyActive) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return customers.filter((c) => {
+    const matchesQuery =
+      c.name.toLowerCase().includes(normalizedQuery) ||
+      c.region.toLowerCase().includes(normalizedQuery) ||
+      c.tier.toLowerCase().includes(normalizedQuery)
+    const matchesActive = onlyActive ? c.active : true
+    return matchesQuery && matchesActive
+  })
+}
+
+export default function CustomersPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [onlyActive, setOnlyActive] = useState(false)
+  const [selected, setSelected] = useState(null)
+  const [toggled, setToggled] = useState({})
+
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
+
+  const handleToggleFlag = (customerId) => {
+    setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
+      <div
+        style={cardStyle(isLight, {
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        })}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search customers..."
+          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          Showing: {onlyActive ? 'Active' : 'All'}
+        </button>
+      </div>
+
+      {selected && (
+        <div style={cardStyle(isLight, { marginBottom: 12 })}>
+          <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
+          <button
+            onClick={() => setSelected(null)}
+            style={{ marginLeft: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #99a6b3' }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <CustomerList
+        customers={results}
+        showSpend={true}
+        showRegion={true}
+        showTier={true}
+        highlightIfGold={true}
+        isCompact={false}
+        theme={theme}
+        selectedCustomerId={selected?.id ?? null}
+        toggledMap={toggled}
+        onSelect={setSelected}
+        onHover={(name) => console.log('Hover customer', name)}
+        onToggle={handleToggleFlag}
+        onAlertName={(name) => window.alert(name)}
+      />
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE
+
+--- EVENT 2 ---
+type=MessageEvent
+source=agent
+role=assistant
+content:
+{
+  "score": 0.92,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Extracted shared cardStyle utility and reused it; behavior preserved."
+}
+
+=== FINAL_EXTRACTED_RESPONSE ===
+{
+  "score": 0.92,
+  "acceptable": true,
+  "issues": [],
+  "repair_instructions": [],
+  "summary": "Extracted shared cardStyle utility and reused it; behavior preserved."
+}

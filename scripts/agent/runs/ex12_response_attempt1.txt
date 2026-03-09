@@ -1,0 +1,138 @@
+BEGIN_FILE: src/components/NavItem.jsx
+```jsx
+import { Link } from 'react-router-dom'
+import { useLayoutContext } from '../layout/Layout'
+
+export default function NavItem({ to, label }) {
+  const { theme, user, currentPath } = useLayoutContext()
+  const isLight = theme === 'light'
+  const isActive = currentPath === to
+
+  return (
+    <Link
+      to={to}
+      style={{
+        textDecoration: 'none',
+        border: `1px solid ${isActive ? '#3d87db' : isLight ? '#c8d1db' : '#48586a'}`,
+        borderRadius: 8,
+        padding: '8px 10px',
+        background: isActive ? (isLight ? '#e8f2ff' : '#2f4b67') : isLight ? '#ffffff' : '#2b3541',
+        color: isLight ? '#1c2630' : '#f2f6fb',
+        display: 'block',
+      }}
+      title={`Visible to role: ${user.role}`}
+    >
+      {label}
+    </Link>
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/components/NavList.jsx
+```jsx
+import NavItem from './NavItem'
+
+const items = [
+  { to: '/', label: 'Home' },
+  { to: '/customers', label: 'Customers' },
+  { to: '/reports', label: 'Reports' },
+]
+
+export default function NavList() {
+  return (
+    <nav style={{ display: 'grid', gap: 8 }}>
+      {items.map((item) => (
+        <NavItem key={item.to} to={item.to} label={item.label} />
+      ))}
+    </nav>
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/components/Sidebar.jsx
+```jsx
+import NavList from './NavList'
+import { useLayoutContext } from '../layout/Layout'
+
+export default function Sidebar() {
+  const { theme } = useLayoutContext()
+  const isLight = theme === 'light'
+
+  return (
+    <aside
+      style={{
+        width: 230,
+        padding: 14,
+        borderRight: `1px solid ${isLight ? '#c8d1db' : '#3b4958'}`,
+        background: isLight ? '#ffffff' : '#26303a',
+      }}
+    >
+      <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Page Truth</h2>
+      <NavList />
+    </aside>
+  )
+}
+```
+END_FILE
+BEGIN_FILE: src/layout/Layout.jsx
+```jsx
+import { createContext, useContext, useMemo } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import Sidebar from '../components/Sidebar'
+
+const LayoutContext = createContext(null)
+
+export const useLayoutContext = () => useContext(LayoutContext)
+
+export default function Layout({ children, theme, user, onToggleTheme }) {
+  const isLight = theme === 'light'
+  const location = useLocation()
+  const contextValue = useMemo(
+    () => ({ theme, user, currentPath: location.pathname }),
+    [theme, user, location.pathname]
+  )
+
+  return (
+    <LayoutContext.Provider value={contextValue}>
+      <div
+        style={{
+          display: 'flex',
+          minHeight: '100vh',
+          background: isLight ? '#f6f8fb' : '#1f252c',
+          color: isLight ? '#17202a' : '#f5f7fa',
+          fontFamily: 'Segoe UI, Tahoma, sans-serif',
+        }}
+      >
+        <Sidebar />
+        <div style={{ flex: 1, padding: 16 }}>
+          <header
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+              border: `1px solid ${isLight ? '#c8d1db' : '#3b4958'}`,
+              borderRadius: 10,
+              padding: 12,
+              background: isLight ? '#ffffff' : '#2b3541',
+            }}
+          >
+            <div>Signed in as {user.name} ({user.role})</div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button onClick={onToggleTheme} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+                Theme: {theme}
+              </button>
+              <Link to="/" style={{ color: isLight ? '#165fb7' : '#95c4ff' }}>
+                Home
+              </Link>
+            </div>
+          </header>
+          <main>{children}</main>
+        </div>
+      </div>
+    </LayoutContext.Provider>
+  )
+}
+```
+END_FILE
+END_RESPONSE

@@ -1,0 +1,15 @@
+[
+  {
+    "task_id": "ex10",
+    "smell": "Prop Drilling",
+    "before_branch": "ex10_smelly",
+    "after_branch": "ex10_refactored",
+    "source_cmd": "git diff --name-only master...ex10_smelly",
+    "relevant_files": [
+      "src/components/NavItemShell.jsx",
+      "src/components/NavList.jsx"
+    ],
+    "context_len": 508,
+    "prompt_file": "C:\\Users\\jayan\\7000 project\\page-truth-smells\\scripts\\agent\\runs\\ex10_prompt.txt"
+  }
+]

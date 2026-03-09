@@ -1,0 +1,492 @@
+--- EVENT 0 ---
+type=SystemPromptEvent
+source=agent
+
+--- EVENT 1 ---
+type=MessageEvent
+source=user
+role=user
+content:
+You are a senior React refactoring agent.
+
+TASK
+- Task ID: ex13
+- Target smell: Inline Logic in Render
+- Before branch: ex13_smelly
+- After branch: ex13_refactored
+- Target routes: ['/reports']
+- Target states: ['default', 'help_open', 'opened_report', 'pinned_ready']
+
+PRIMARY GOAL
+Refactor to reduce the target smell while preserving user-visible behavior.
+
+BEHAVIORAL INVARIANTS (MUST NOT BREAK)
+1. Route behavior and navigation must remain unchanged.
+2. Visible labels/text used in UI should remain unchanged.
+3. Interaction flows for the listed states must remain equivalent.
+4. DOM structure can be reorganized internally, but rendered output intent should match.
+5. Do not introduce runtime errors, missing imports, or broken handlers.
+6. Keep styling and layout behavior equivalent (no intentional visual redesign).
+7. Keep existing prop contracts unless changed consistently across all call sites.
+
+ALLOWED REFACTORINGS (USE ONLY THESE)
+- Move complex conditions/computations out of JSX into named helpers.
+- Precompute render values before return.
+- Extract repeated conditional blocks into dedicated components/functions.
+
+FILES YOU MAY EDIT
+- src/pages/ReportsPage.jsx
+
+HARD CONSTRAINTS
+1. Edit only files listed in FILES YOU MAY EDIT.
+2. Do not touch generated artifacts, dataset outputs, or truth files.
+3. Keep changes focused to smell reduction; avoid unrelated cleanup.
+4. Preserve existing business logic and edge-case behavior.
+5. No placeholder TODO code.
+6. No partial snippets.
+
+OUTPUT FORMAT (STRICT)
+Return full file replacements only, no prose:
+BEGIN_FILE: <relative/path>
+```<language>
+<full file content>
+```
+END_FILE
+If multiple files change, emit multiple FILE blocks.
+After the last file, print exactly: END_RESPONSE
+
+CODE CONTEXT
+===== FILE: src/pages/ReportsPage.jsx =====
+import { useEffect, useMemo, useState } from 'react'
+import ReportRow from '../components/ReportRow'
+import Toolbar from '../components/Toolbar'
+import { REPORTS } from '../data/mockData'
+import { badgeColor } from '../utils/format'
+
+function filterReports(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((r) => {
+    const matchesQuery =
+      r.title.toLowerCase().includes(normalizedQuery) ||
+      r.owner.toLowerCase().includes(normalizedQuery) ||
+      r.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : r.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
+export default function ReportsPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('All')
+  const [opened, setOpened] = useState(null)
+  const [toast, setToast] = useState('')
+  const [counter, setCounter] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
+  const [pinReady, setPinReady] = useState(false)
+
+  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
+  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
+  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
+
+  useEffect(() => {
+    if (!toast) {
+      return undefined
+    }
+    const id = window.setTimeout(() => setToast(''), 1600)
+    return () => window.clearTimeout(id)
+  }, [toast])
+
+  const openReport = (report) => {
+    setOpened(report)
+    setCounter((prev) => prev + 1)
+    setToast(`Opened report: ${report.title}`)
+  }
+
+  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === 'Ready') : []
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />
+
+      <div
+        style={{
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          marginBottom: 12,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+        }}
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search reports..."
+          style={{ padding: 8, minWidth: 220, borderRadius: 8, border: '1px solid #99a6b3' }}
+        />
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          style={{ padding: 8, borderRadius: 8, border: '1px solid #99a6b3' }}
+        >
+          <option>All</option>
+          <option>Ready</option>
+          <option>Draft</option>
+          <option>Blocked</option>
+        </select>
+
+        <button onClick={() => setShowHelp((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {showHelp ? 'Hide Help' : 'Show Help'}
+        </button>
+
+        <button onClick={() => setPinReady((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+          {pinReady ? 'Unpin Ready' : 'Pin Ready'}
+        </button>
+      </div>
+
+      {toast && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px solid ${isLight ? '#98b6d6' : '#5d83a9'}`,
+            borderRadius: 10,
+            padding: 10,
+            background: isLight ? '#eaf3ff' : '#2f4b67',
+          }}
+        >
+          {toast}
+        </div>
+      )}
+
+      {showHelp && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).
+        </div>
+      )}
+
+      <div
+        style={{
+          marginBottom: 12,
+          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+          borderRadius: 10,
+          padding: 12,
+          background: isLight ? '#ffffff' : '#2b3541',
+          display: 'flex',
+          gap: 8,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+      </div>
+
+      {pinReady && (
+        <div
+          style={{
+            marginBottom: 12,
+            border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#f2fff3' : '#2f4533',
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
+          {pinnedReadyReports.map((report) => (
+            <div key={report.id} style={{ padding: '6px 0', borderBottom: '1px solid rgba(120,120,120,0.25)' }}>
+              {report.title} - {report.owner}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gap: 8 }}>
+        {filtered.map((report) => (
+          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+        ))}
+      </div>
+
+      {opened && (
+        <div
+          style={{
+            marginTop: 12,
+            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
+            borderRadius: 10,
+            padding: 12,
+            background: isLight ? '#ffffff' : '#2b3541',
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Open Report</h3>
+          <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
+          <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
+          <p style={{ margin: '4px 0' }}>Status: {opened.status}</p>
+          <p style={{ margin: '4px 0' }}>Updated: {opened.updatedDaysAgo} days ago</p>
+          <button onClick={() => setOpened(null)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+            Close
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+REFINEMENT LOOP CONTEXT
+- Attempt: 2
+- You are the REFACTORING agent.
+- Preserve behavior and public contracts.
+- Keep edits minimal and focused.
+- Keep imports/exports valid.
+- Output ONLY BEGIN_FILE/END_FILE blocks with full file contents.
+- After last file output exactly: END_RESPONSE
+
+CRITIQUE_FEEDBACK
+PREVIOUS ATTEMPT FEEDBACK
+Critique summary: Refactor is close but changes toast padding, impacting styling.
+Critique score: 0.62
+Issues:
+- Toast panel padding changed from 10 to 12 due to reuse of basePanelStyle, altering layout/styling in violation of invariants.
+Repair instructions:
+- Restore toast panel padding to 10px by overriding padding in toastStyle or avoid using basePanelStyle for that panel.
+Build status: PASSED
+Build errors/log tail:
+
+> page-truth-smells@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mâœ“[39m 53 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.39 kB[22m[1m[22m[2m â”‚ gzip:  0.27 kB[22m
+[2mdist/[22m[36massets/index-DxmTSYgW.js  [39m[1m[2m242.48 kB[22m[1m[22m[2m â”‚ gzip: 77.27 kB[22m
+[32mâœ“ built in 2.11s[39m
+
+BUILD_FEEDBACK
+Build status: PASSED
+Build log file: ex13_build_attempt1.log
+Build log tail:
+
+> page-truth-smells@0.0.0 build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mâœ“[39m 53 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.39 kB[22m[1m[22m[2m â”‚ gzip:  0.27 kB[22m
+[2mdist/[22m[36massets/index-DxmTSYgW.js  [39m[1m[2m242.48 kB[22m[1m[22m[2m â”‚ gzip: 77.27 kB[22m
+[32mâœ“ built in 2.11s[39m
+
+--- EVENT 2 ---
+type=ActionEvent
+source=agent
+action=message='BEGIN_FILE: src/pages/ReportsPage.jsx\n```jsx\nimport { useEffect, useMemo, useState } from \'react\'\nimport ReportRow from \'../components/ReportRow\'\nimport Toolbar from \'../components/Toolbar\'\nimport { REPORTS } from \'../data/mockData\'\nimport { badgeColor } from \'../utils/format\'\n\nfunction filterReports(reports, query, status) {\n  const normalizedQuery = query.trim().toLowerCase()\n  return reports.filter((r) => {\n    const matchesQuery =\n      r.title.toLowerCase().includes(normalizedQuery) ||\n      r.owner.toLowerCase().includes(normalizedQuery) ||\n      r.status.toLowerCase().includes(normalizedQuery)\n    const matchesStatus = status === \'All\' ? true : r.status === status\n    return matchesQuery && matchesStatus\n  })\n}\n\nexport default function ReportsPage({ theme, user }) {\n  const isLight = theme === \'light\'\n  const [query, setQuery] = useState(\'\')\n  const [status, setStatus] = useState(\'All\')\n  const [opened, setOpened] = useState(null)\n  const [toast, setToast] = useState(\'\')\n  const [counter, setCounter] = useState(0)\n  const [showHelp, setShowHelp] = useState(false)\n  const [pinReady, setPinReady] = useState(false)\n\n  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])\n  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === \'Ready\').length, [])\n  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === \'Draft\').length, [])\n  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === \'Blocked\').length, [])\n\n  useEffect(() => {\n    if (!toast) {\n      return undefined\n    }\n    const id = window.setTimeout(() => setToast(\'\'), 1600)\n    return () => window.clearTimeout(id)\n  }, [toast])\n\n  const openReport = (report) => {\n    setOpened(report)\n    setCounter((prev) => prev + 1)\n    setToast(`Opened report: ${report.title}`)\n  }\n\n  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === \'Ready\') : []\n\n  const panelBorderColor = isLight ? \'#c8d1db\' : \'#4b5b6d\'\n  const panelBackground = isLight ? \'#ffffff\' : \'#2b3541\'\n  const searchPanelStyle = {\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n    marginBottom: 12,\n    display: \'flex\',\n    flexWrap: \'wrap\',\n    gap: 8,\n  }\n  const fieldStyle = { padding: 8, borderRadius: 8, border: \'1px solid #99a6b3\' }\n  const inputStyle = { ...fieldStyle, minWidth: 220 }\n  const actionButtonStyle = { padding: \'8px 10px\', borderRadius: 8, border: \'1px solid #99a6b3\' }\n  const toastStyle = {\n    marginBottom: 12,\n    border: `1px solid ${isLight ? \'#98b6d6\' : \'#5d83a9\'}`,\n    borderRadius: 10,\n    padding: 10,\n    background: isLight ? \'#eaf3ff\' : \'#2f4b67\',\n  }\n  const helpStyle = {\n    marginBottom: 12,\n    border: `1px dashed ${isLight ? \'#7d8d9f\' : \'#7a8ea3\'}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n  }\n  const statusStyle = {\n    marginBottom: 12,\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n    display: \'flex\',\n    gap: 8,\n    flexWrap: \'wrap\',\n  }\n  const pinnedStyle = {\n    marginBottom: 12,\n    border: `1px solid ${isLight ? \'#b7d8be\' : \'#55815d\'}`,\n    borderRadius: 10,\n    padding: 12,\n    background: isLight ? \'#f2fff3\' : \'#2f4533\',\n  }\n  const pinnedRowStyle = { padding: \'6px 0\', borderBottom: \'1px solid rgba(120,120,120,0.25)\' }\n  const openedStyle = {\n    marginTop: 12,\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n  }\n  const showHelpLabel = showHelp ? \'Hide Help\' : \'Show Help\'\n  const pinReadyLabel = pinReady ? \'Unpin Ready\' : \'Pin Ready\'\n\n  return (\n    <section>\n      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />\n\n      <div style={searchPanelStyle}>\n        <input\n          value={query}\n          onChange={(e) => setQuery(e.target.value)}\n          placeholder="Search reports..."\n          style={inputStyle}\n        />\n\n        <select value={status} onChange={(e) => setStatus(e.target.value)} style={fieldStyle}>\n          <option>All</option>\n          <option>Ready</option>\n          <option>Draft</option>\n          <option>Blocked</option>\n        </select>\n\n        <button onClick={() => setShowHelp((prev) => !prev)} style={actionButtonStyle}>\n          {showHelpLabel}\n        </button>\n\n        <button onClick={() => setPinReady((prev) => !prev)} style={actionButtonStyle}>\n          {pinReadyLabel}\n        </button>\n      </div>\n\n      {toast && <div style={toastStyle}>{toast}</div>}\n\n      {showHelp && (\n        <div style={helpStyle}>\n          <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).\n        </div>\n      )}\n\n      <div style={statusStyle}>\n        <span style={{ color: badgeColor(\'Ready\') }}>Ready: {readyCount}</span>\n        <span style={{ color: badgeColor(\'Draft\') }}>Draft: {draftCount}</span>\n        <span style={{ color: badgeColor(\'Blocked\') }}>Blocked: {blockedCount}</span>\n      </div>\n\n      {pinReady && (\n        <div style={pinnedStyle}>\n          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>\n          {pinnedReadyReports.map((report) => (\n            <div key={report.id} style={pinnedRowStyle}>\n              {report.title} - {report.owner}\n            </div>\n          ))}\n        </div>\n      )}\n\n      <div style={{ display: \'grid\', gap: 8 }}>\n        {filtered.map((report) => (\n          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />\n        ))}\n      </div>\n\n      {opened && (\n        <div style={openedStyle}>\n          <h3 style={{ marginTop: 0 }}>Open Report</h3>\n          <p style={{ margin: \'4px 0\' }}>Title: {opened.title}</p>\n          <p style={{ margin: \'4px 0\' }}>Owner: {opened.owner}</p>\n          <p style={{ margin: \'4px 0\' }}>Status: {opened.status}</p>\n          <p style={{ margin: \'4px 0\' }}>Updated: {opened.updatedDaysAgo} days ago</p>\n          <button onClick={() => setOpened(null)} style={{ padding: \'6px 10px\', borderRadius: 8, border: \'1px solid #99a6b3\' }}>\n            Close\n          </button>\n        </div>\n      )}\n    </section>\n  )\n}\n```\nEND_FILE\nEND_RESPONSE' kind='FinishAction'
+tool_name=finish
+
+--- EVENT 3 ---
+type=ObservationEvent
+source=environment
+observation=content=[TextContent(cache_prompt=False, type='text', text='BEGIN_FILE: src/pages/ReportsPage.jsx\n```jsx\nimport { useEffect, useMemo, useState } from \'react\'\nimport ReportRow from \'../components/ReportRow\'\nimport Toolbar from \'../components/Toolbar\'\nimport { REPORTS } from \'../data/mockData\'\nimport { badgeColor } from \'../utils/format\'\n\nfunction filterReports(reports, query, status) {\n  const normalizedQuery = query.trim().toLowerCase()\n  return reports.filter((r) => {\n    const matchesQuery =\n      r.title.toLowerCase().includes(normalizedQuery) ||\n      r.owner.toLowerCase().includes(normalizedQuery) ||\n      r.status.toLowerCase().includes(normalizedQuery)\n    const matchesStatus = status === \'All\' ? true : r.status === status\n    return matchesQuery && matchesStatus\n  })\n}\n\nexport default function ReportsPage({ theme, user }) {\n  const isLight = theme === \'light\'\n  const [query, setQuery] = useState(\'\')\n  const [status, setStatus] = useState(\'All\')\n  const [opened, setOpened] = useState(null)\n  const [toast, setToast] = useState(\'\')\n  const [counter, setCounter] = useState(0)\n  const [showHelp, setShowHelp] = useState(false)\n  const [pinReady, setPinReady] = useState(false)\n\n  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])\n  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === \'Ready\').length, [])\n  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === \'Draft\').length, [])\n  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === \'Blocked\').length, [])\n\n  useEffect(() => {\n    if (!toast) {\n      return undefined\n    }\n    const id = window.setTimeout(() => setToast(\'\'), 1600)\n    return () => window.clearTimeout(id)\n  }, [toast])\n\n  const openReport = (report) => {\n    setOpened(report)\n    setCounter((prev) => prev + 1)\n    setToast(`Opened report: ${report.title}`)\n  }\n\n  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === \'Ready\') : []\n\n  const panelBorderColor = isLight ? \'#c8d1db\' : \'#4b5b6d\'\n  const panelBackground = isLight ? \'#ffffff\' : \'#2b3541\'\n  const searchPanelStyle = {\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n    marginBottom: 12,\n    display: \'flex\',\n    flexWrap: \'wrap\',\n    gap: 8,\n  }\n  const fieldStyle = { padding: 8, borderRadius: 8, border: \'1px solid #99a6b3\' }\n  const inputStyle = { ...fieldStyle, minWidth: 220 }\n  const actionButtonStyle = { padding: \'8px 10px\', borderRadius: 8, border: \'1px solid #99a6b3\' }\n  const toastStyle = {\n    marginBottom: 12,\n    border: `1px solid ${isLight ? \'#98b6d6\' : \'#5d83a9\'}`,\n    borderRadius: 10,\n    padding: 10,\n    background: isLight ? \'#eaf3ff\' : \'#2f4b67\',\n  }\n  const helpStyle = {\n    marginBottom: 12,\n    border: `1px dashed ${isLight ? \'#7d8d9f\' : \'#7a8ea3\'}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n  }\n  const statusStyle = {\n    marginBottom: 12,\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n    display: \'flex\',\n    gap: 8,\n    flexWrap: \'wrap\',\n  }\n  const pinnedStyle = {\n    marginBottom: 12,\n    border: `1px solid ${isLight ? \'#b7d8be\' : \'#55815d\'}`,\n    borderRadius: 10,\n    padding: 12,\n    background: isLight ? \'#f2fff3\' : \'#2f4533\',\n  }\n  const pinnedRowStyle = { padding: \'6px 0\', borderBottom: \'1px solid rgba(120,120,120,0.25)\' }\n  const openedStyle = {\n    marginTop: 12,\n    border: `1px solid ${panelBorderColor}`,\n    borderRadius: 10,\n    padding: 12,\n    background: panelBackground,\n  }\n  const showHelpLabel = showHelp ? \'Hide Help\' : \'Show Help\'\n  const pinReadyLabel = pinReady ? \'Unpin Ready\' : \'Pin Ready\'\n\n  return (\n    <section>\n      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />\n\n      <div style={searchPanelStyle}>\n        <input\n          value={query}\n          onChange={(e) => setQuery(e.target.value)}\n          placeholder="Search reports..."\n          style={inputStyle}\n        />\n\n        <select value={status} onChange={(e) => setStatus(e.target.value)} style={fieldStyle}>\n          <option>All</option>\n          <option>Ready</option>\n          <option>Draft</option>\n          <option>Blocked</option>\n        </select>\n\n        <button onClick={() => setShowHelp((prev) => !prev)} style={actionButtonStyle}>\n          {showHelpLabel}\n        </button>\n\n        <button onClick={() => setPinReady((prev) => !prev)} style={actionButtonStyle}>\n          {pinReadyLabel}\n        </button>\n      </div>\n\n      {toast && <div style={toastStyle}>{toast}</div>}\n\n      {showHelp && (\n        <div style={helpStyle}>\n          <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).\n        </div>\n      )}\n\n      <div style={statusStyle}>\n        <span style={{ color: badgeColor(\'Ready\') }}>Ready: {readyCount}</span>\n        <span style={{ color: badgeColor(\'Draft\') }}>Draft: {draftCount}</span>\n        <span style={{ color: badgeColor(\'Blocked\') }}>Blocked: {blockedCount}</span>\n      </div>\n\n      {pinReady && (\n        <div style={pinnedStyle}>\n          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>\n          {pinnedReadyReports.map((report) => (\n            <div key={report.id} style={pinnedRowStyle}>\n              {report.title} - {report.owner}\n            </div>\n          ))}\n        </div>\n      )}\n\n      <div style={{ display: \'grid\', gap: 8 }}>\n        {filtered.map((report) => (\n          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />\n        ))}\n      </div>\n\n      {opened && (\n        <div style={openedStyle}>\n          <h3 style={{ marginTop: 0 }}>Open Report</h3>\n          <p style={{ margin: \'4px 0\' }}>Title: {opened.title}</p>\n          <p style={{ margin: \'4px 0\' }}>Owner: {opened.owner}</p>\n          <p style={{ margin: \'4px 0\' }}>Status: {opened.status}</p>\n          <p style={{ margin: \'4px 0\' }}>Updated: {opened.updatedDaysAgo} days ago</p>\n          <button onClick={() => setOpened(null)} style={{ padding: \'6px 10px\', borderRadius: 8, border: \'1px solid #99a6b3\' }}>\n            Close\n          </button>\n        </div>\n      )}\n    </section>\n  )\n}\n```\nEND_FILE\nEND_RESPONSE')] is_error=False kind='FinishObservation'
+tool_name=finish
+
+=== FINAL_EXTRACTED_RESPONSE ===
+BEGIN_FILE: src/pages/ReportsPage.jsx
+```jsx
+import { useEffect, useMemo, useState } from 'react'
+import ReportRow from '../components/ReportRow'
+import Toolbar from '../components/Toolbar'
+import { REPORTS } from '../data/mockData'
+import { badgeColor } from '../utils/format'
+
+function filterReports(reports, query, status) {
+  const normalizedQuery = query.trim().toLowerCase()
+  return reports.filter((r) => {
+    const matchesQuery =
+      r.title.toLowerCase().includes(normalizedQuery) ||
+      r.owner.toLowerCase().includes(normalizedQuery) ||
+      r.status.toLowerCase().includes(normalizedQuery)
+    const matchesStatus = status === 'All' ? true : r.status === status
+    return matchesQuery && matchesStatus
+  })
+}
+
+export default function ReportsPage({ theme, user }) {
+  const isLight = theme === 'light'
+  const [query, setQuery] = useState('')
+  const [status, setStatus] = useState('All')
+  const [opened, setOpened] = useState(null)
+  const [toast, setToast] = useState('')
+  const [counter, setCounter] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
+  const [pinReady, setPinReady] = useState(false)
+
+  const filtered = useMemo(() => filterReports(REPORTS, query, status), [query, status])
+  const readyCount = useMemo(() => REPORTS.filter((r) => r.status === 'Ready').length, [])
+  const draftCount = useMemo(() => REPORTS.filter((r) => r.status === 'Draft').length, [])
+  const blockedCount = useMemo(() => REPORTS.filter((r) => r.status === 'Blocked').length, [])
+
+  useEffect(() => {
+    if (!toast) {
+      return undefined
+    }
+    const id = window.setTimeout(() => setToast(''), 1600)
+    return () => window.clearTimeout(id)
+  }, [toast])
+
+  const openReport = (report) => {
+    setOpened(report)
+    setCounter((prev) => prev + 1)
+    setToast(`Opened report: ${report.title}`)
+  }
+
+  const pinnedReadyReports = pinReady ? REPORTS.filter((r) => r.status === 'Ready') : []
+
+  const panelBorderColor = isLight ? '#c8d1db' : '#4b5b6d'
+  const panelBackground = isLight ? '#ffffff' : '#2b3541'
+  const searchPanelStyle = {
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+    marginBottom: 12,
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+  }
+  const fieldStyle = { padding: 8, borderRadius: 8, border: '1px solid #99a6b3' }
+  const inputStyle = { ...fieldStyle, minWidth: 220 }
+  const actionButtonStyle = { padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }
+  const toastStyle = {
+    marginBottom: 12,
+    border: `1px solid ${isLight ? '#98b6d6' : '#5d83a9'}`,
+    borderRadius: 10,
+    padding: 10,
+    background: isLight ? '#eaf3ff' : '#2f4b67',
+  }
+  const helpStyle = {
+    marginBottom: 12,
+    border: `1px dashed ${isLight ? '#7d8d9f' : '#7a8ea3'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+  }
+  const statusStyle = {
+    marginBottom: 12,
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+    display: 'flex',
+    gap: 8,
+    flexWrap: 'wrap',
+  }
+  const pinnedStyle = {
+    marginBottom: 12,
+    border: `1px solid ${isLight ? '#b7d8be' : '#55815d'}`,
+    borderRadius: 10,
+    padding: 12,
+    background: isLight ? '#f2fff3' : '#2f4533',
+  }
+  const pinnedRowStyle = { padding: '6px 0', borderBottom: '1px solid rgba(120,120,120,0.25)' }
+  const openedStyle = {
+    marginTop: 12,
+    border: `1px solid ${panelBorderColor}`,
+    borderRadius: 10,
+    padding: 12,
+    background: panelBackground,
+  }
+  const showHelpLabel = showHelp ? 'Hide Help' : 'Show Help'
+  const pinReadyLabel = pinReady ? 'Unpin Ready' : 'Pin Ready'
+
+  return (
+    <section>
+      <Toolbar theme={theme} title="Reports" subtitle={`Status board for ${user.role}`} />
+
+      <div style={searchPanelStyle}>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search reports..."
+          style={inputStyle}
+        />
+
+        <select value={status} onChange={(e) => setStatus(e.target.value)} style={fieldStyle}>
+          <option>All</option>
+          <option>Ready</option>
+          <option>Draft</option>
+          <option>Blocked</option>
+        </select>
+
+        <button onClick={() => setShowHelp((prev) => !prev)} style={actionButtonStyle}>
+          {showHelpLabel}
+        </button>
+
+        <button onClick={() => setPinReady((prev) => !prev)} style={actionButtonStyle}>
+          {pinReadyLabel}
+        </button>
+      </div>
+
+      {toast && <div style={toastStyle}>{toast}</div>}
+
+      {showHelp && (
+        <div style={helpStyle}>
+          <strong>Help:</strong> Use search + status to narrow rows. "Open" loads a details panel and increments open count ({counter}).
+        </div>
+      )}
+
+      <div style={statusStyle}>
+        <span style={{ color: badgeColor('Ready') }}>Ready: {readyCount}</span>
+        <span style={{ color: badgeColor('Draft') }}>Draft: {draftCount}</span>
+        <span style={{ color: badgeColor('Blocked') }}>Blocked: {blockedCount}</span>
+      </div>
+
+      {pinReady && (
+        <div style={pinnedStyle}>
+          <h3 style={{ marginTop: 0 }}>Pinned Ready Reports</h3>
+          {pinnedReadyReports.map((report) => (
+            <div key={report.id} style={pinnedRowStyle}>
+              {report.title} - {report.owner}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gap: 8 }}>
+        {filtered.map((report) => (
+          <ReportRow key={report.id} report={report} theme={theme} onOpen={openReport} />
+        ))}
+      </div>
+
+      {opened && (
+        <div style={openedStyle}>
+          <h3 style={{ marginTop: 0 }}>Open Report</h3>
+          <p style={{ margin: '4px 0' }}>Title: {opened.title}</p>
+          <p style={{ margin: '4px 0' }}>Owner: {opened.owner}</p>
+          <p style={{ margin: '4px 0' }}>Status: {opened.status}</p>
+          <p style={{ margin: '4px 0' }}>Updated: {opened.updatedDaysAgo} days ago</p>
+          <button onClick={() => setOpened(null)} style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+            Close
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+```
+END_FILE
+END_RESPONSE
