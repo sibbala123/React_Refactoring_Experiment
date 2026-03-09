@@ -1,7 +1,11 @@
-import { spawn, spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getCliArg, readRoutesConfig } from './helpers.js'
 import { runTruthGeneration } from './generateTruth.js'
+
+function getNpmCommand() {
+  return process.platform === 'win32' ? 'npm.cmd' : 'npm'
+}
 
 async function isUrlReachable(url) {
   try {
@@ -33,17 +37,11 @@ async function run() {
     return
   }
 
-  const devArgs = ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5173', '--strictPort']
-  const devProc =
-    process.platform === 'win32'
-      ? spawn('cmd.exe', ['/d', '/s', '/c', `npm.cmd ${devArgs.join(' ')}`], {
-          stdio: 'inherit',
-          windowsHide: true,
-        })
-      : spawn('npm', devArgs, {
-          stdio: 'inherit',
-          windowsHide: true,
-        })
+  const npmCmd = getNpmCommand()
+  const devProc = spawn(npmCmd, ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5173', '--strictPort'], {
+    stdio: 'inherit',
+    shell: true,
+  })
 
   try {
     const ready = await waitForUrl(baseUrl, 30000)
@@ -52,12 +50,7 @@ async function run() {
     }
     await runTruthGeneration(outputDir)
   } finally {
-    // On Windows, kill process tree to ensure npm/vite children do not keep shell occupied.
-    if (process.platform === 'win32') {
-      spawnSync('taskkill', ['/PID', String(devProc.pid), '/T', '/F'], { stdio: 'ignore' })
-    } else {
-      devProc.kill('SIGTERM')
-    }
+    devProc.kill()
   }
 }
 
