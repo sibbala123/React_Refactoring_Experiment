@@ -3,19 +3,31 @@ import CustomerList from '../components/CustomerList'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
 
-function filterCustomers(customers, query, onlyActive) {
-  const normalizedQuery = query.trim().toLowerCase()
-  return customers.filter((c) => {
-    const matchesQuery =
-      c.name.toLowerCase().includes(normalizedQuery) ||
-      c.region.toLowerCase().includes(normalizedQuery) ||
-      c.tier.toLowerCase().includes(normalizedQuery)
-    const matchesActive = onlyActive ? c.active : true
-    return matchesQuery && matchesActive
-  })
+export const basePanelStyle = (isLight, options = {}) => {
+  const { borderColor, background, padding = 12, marginBottom = 12, ...overrides } = options
+  return {
+    border: `1px solid ${borderColor ?? (isLight ? '#c8d1db' : '#4b5b6d')}`,
+    borderRadius: 10,
+    padding,
+    background: background ?? (isLight ? '#ffffff' : '#2b3541'),
+    marginBottom,
+    ...overrides,
+  }
 }
 
-function filterCustomersAgain(customers, query, onlyActive) {
+export const controlButtonStyle = {
+  padding: '8px 10px',
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+export const controlInputStyle = {
+  padding: 8,
+  borderRadius: 8,
+  border: '1px solid #99a6b3',
+}
+
+function filterCustomers(customers, query, onlyActive) {
   const normalizedQuery = query.trim().toLowerCase()
   return customers.filter((c) => {
     const matchesQuery =
@@ -34,7 +46,7 @@ export default function CustomersPage({ theme, user }) {
   const [selected, setSelected] = useState(null)
   const [toggled, setToggled] = useState({})
 
-  const results = useMemo(() => filterCustomersAgain(filterCustomers(CUSTOMERS, query, onlyActive), query, onlyActive), [query, onlyActive])
+  const results = useMemo(() => filterCustomers(CUSTOMERS, query, onlyActive), [query, onlyActive])
 
   const handleToggleFlag = (customerId) => {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
@@ -43,39 +55,20 @@ export default function CustomersPage({ theme, user }) {
   return (
     <section>
       <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
+      <div style={basePanelStyle(isLight, { display: 'flex', flexWrap: 'wrap', gap: 8 })}>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search customers..."
-          style={{ padding: 8, minWidth: 240, borderRadius: 8, border: '1px solid #99a6b3' }}
+          style={{ ...controlInputStyle, minWidth: 240 }}
         />
-        <button onClick={() => setOnlyActive((prev) => !prev)} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #99a6b3' }}>
+        <button onClick={() => setOnlyActive((prev) => !prev)} style={controlButtonStyle}>
           Showing: {onlyActive ? 'Active' : 'All'}
         </button>
       </div>
 
       {selected && (
-        <div
-          style={{
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-            marginBottom: 12,
-          }}
-        >
+        <div style={basePanelStyle(isLight)}>
           <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
           <button
             onClick={() => setSelected(null)}
@@ -104,4 +97,3 @@ export default function CustomersPage({ theme, user }) {
     </section>
   )
 }
-
