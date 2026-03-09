@@ -1,0 +1,2 @@
+execution-agent unavailable; host-only fallback used.
+reason: Windows is not supported yet for OpenHands V1.
