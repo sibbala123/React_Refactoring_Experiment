@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import CustomerList from '../components/CustomerList'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
+import { cardStyle } from './HomePage'
 
 function filterCustomers(customers, query, onlyActive) {
   const normalizedQuery = query.trim().toLowerCase()
@@ -32,28 +33,12 @@ export default function CustomersPage({ theme, user }) {
     <section>
       <Toolbar theme={theme} title="Customers" subtitle={`Review account health for ${user.team}`} />
       <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
-          marginBottom: 12,
-        }}
-      >
-        <strong>Snapshot Card</strong>
-        <div style={{ marginTop: 6, opacity: 0.9 }}>Customers currently shown in this page.</div>
-      </div>
-      <div
-        style={{
-          border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-          borderRadius: 10,
-          padding: 12,
-          background: isLight ? '#ffffff' : '#2b3541',
+        style={cardStyle(isLight, {
           marginBottom: 12,
           display: 'flex',
           flexWrap: 'wrap',
           gap: 8,
-        }}
+        })}
       >
         <input
           value={query}
@@ -67,15 +52,7 @@ export default function CustomersPage({ theme, user }) {
       </div>
 
       {selected && (
-        <div
-          style={{
-            border: `1px solid ${isLight ? '#c8d1db' : '#4b5b6d'}`,
-            borderRadius: 10,
-            padding: 12,
-            background: isLight ? '#ffffff' : '#2b3541',
-            marginBottom: 12,
-          }}
-        >
+        <div style={cardStyle(isLight, { marginBottom: 12 })}>
           <strong>Selected:</strong> {selected.name} ({selected.tier}, {selected.region})
           <button
             onClick={() => setSelected(null)}
