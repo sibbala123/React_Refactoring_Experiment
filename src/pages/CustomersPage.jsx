@@ -3,6 +3,14 @@ import CustomerListShell from '../components/CustomerListShell'
 import Toolbar from '../components/Toolbar'
 import { CUSTOMERS } from '../data/mockData'
 
+const DISPLAY_OPTIONS = {
+  showSpend: true,
+  showRegion: true,
+  showTier: true,
+  highlightIfGold: true,
+  isCompact: false,
+}
+
 function filterCustomers(customers, query, onlyActive) {
   const normalizedQuery = query.trim().toLowerCase()
   return customers.filter((c) => {
@@ -26,6 +34,23 @@ export default function CustomersPage({ theme, user }) {
 
   const handleToggleFlag = (customerId) => {
     setToggled((prev) => ({ ...prev, [customerId]: !prev[customerId] }))
+  }
+
+  const handleHover = (name) => console.log('Hover customer', name)
+  const handleAlertName = (name) => window.alert(name)
+
+  const listData = {
+    customers: results,
+    selectedCustomerId: selected?.id ?? null,
+    toggledMap: toggled,
+    theme,
+  }
+
+  const listHandlers = {
+    onSelect: setSelected,
+    onHover: handleHover,
+    onToggle: handleToggleFlag,
+    onAlertName: handleAlertName,
   }
 
   return (
@@ -74,21 +99,7 @@ export default function CustomersPage({ theme, user }) {
         </div>
       )}
 
-      <CustomerListShell
-        customers={results}
-        showSpend={true}
-        showRegion={true}
-        showTier={true}
-        highlightIfGold={true}
-        isCompact={false}
-        theme={theme}
-        selectedCustomerId={selected?.id ?? null}
-        toggledMap={toggled}
-        onSelect={setSelected}
-        onHover={(name) => console.log('Hover customer', name)}
-        onToggle={handleToggleFlag}
-        onAlertName={(name) => window.alert(name)}
-      />
+      <CustomerListShell data={listData} displayOptions={DISPLAY_OPTIONS} handlers={listHandlers} />
     </section>
   )
 }
