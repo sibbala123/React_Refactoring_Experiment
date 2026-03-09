@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import ReportRows from '../components/ReportRows'
+import ReportRows, { ReportRowProvider } from '../components/ReportRows'
 import Toolbar from '../components/Toolbar'
 import { REPORTS } from '../data/mockData'
 import { badgeColor } from '../utils/format'
@@ -154,9 +154,9 @@ export default function ReportsPage({ theme, user }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gap: 8 }}>
-        <ReportRows reports={filtered} theme={theme} onOpen={openReport} />
-      </div>
+      <ReportRowProvider theme={theme} onOpen={openReport}>
+        <ReportRows reports={filtered} />
+      </ReportRowProvider>
 
       {opened && (
         <div
