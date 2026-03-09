@@ -1,4 +1,5 @@
-import NavItemShell from './NavItemShell'
+import { createContext, useMemo } from 'react'
+import NavItem from './NavItem'
 
 const items = [
   { to: '/', label: 'Home' },
@@ -6,12 +7,22 @@ const items = [
   { to: '/reports', label: 'Reports' },
 ]
 
+export const NavListContext = createContext({
+  theme: null,
+  user: null,
+  currentPath: '',
+})
+
 export default function NavList({ theme, user, currentPath }) {
+  const contextValue = useMemo(() => ({ theme, user, currentPath }), [theme, user, currentPath])
+
   return (
-    <nav style={{ display: 'grid', gap: 8 }}>
-      {items.map((item) => (
-        <NavItemShell key={item.to} to={item.to} label={item.label} currentPath={currentPath} theme={theme} user={user} />
-      ))}
-    </nav>
+    <NavListContext.Provider value={contextValue}>
+      <nav style={{ display: 'grid', gap: 8 }}>
+        {items.map((item) => (
+          <NavItem key={item.to} to={item.to} label={item.label} currentPath={currentPath} />
+        ))}
+      </nav>
+    </NavListContext.Provider>
   )
 }

@@ -1,5 +1,54 @@
-import NavItem from './NavItem'
+import { useContext } from 'react'
+import { Link } from 'react-router-dom'
+import { NavListContext } from './NavList'
 
-export default function NavItemShell({ to, label, currentPath, theme, user }) {
-  return <NavItem to={to} label={label} currentPath={currentPath} theme={theme} user={user} />
+export default function NavItemShell({
+  to,
+  label,
+  currentPath: currentPathProp,
+  theme: themeProp,
+  user: userProp,
+  children,
+  ...rest
+}) {
+  const navContext = useContext(NavListContext)
+  const theme = themeProp ?? navContext.theme
+  const user = userProp ?? navContext.user
+  const currentPath = currentPathProp ?? navContext.currentPath
+  const isActive = currentPath === to
+
+  const baseStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    padding: '6px 10px',
+    borderRadius: 6,
+    textDecoration: 'none',
+    fontSize: 14,
+    fontWeight: 500,
+  }
+
+  const themeStyles = typeof theme === 'object' && theme !== null ? theme : {}
+  const activeStyle = themeStyles.active || themeStyles.activeItem || {}
+  const inactiveStyle = themeStyles.inactive || themeStyles.item || {}
+  const stateStyle = isActive ? activeStyle : inactiveStyle
+  const color = stateStyle.color ?? themeStyles.text ?? (isActive ? '#0f172a' : '#334155')
+  const background = stateStyle.background ?? themeStyles.background ?? (isActive ? '#e2e8f0' : 'transparent')
+
+  const style = { ...baseStyle, ...stateStyle, color, background }
+
+  const badgeText =
+    (to === '/customers' && user?.helpOpen && 'Help') ||
+    (to === '/reports' && user?.openedReport && 'Open') ||
+    (to === '/reports' && user?.pinnedReady && 'Pinned')
+
+  const content = children ?? label
+
+  return (
+    <Link to={to} style={style} {...rest}>
+      {content}
+      {badgeText ? <span style={{ fontSize: 12, opacity: 0.7 }}>{badgeText}</span> : null}
+    </Link>
+  )
 }
